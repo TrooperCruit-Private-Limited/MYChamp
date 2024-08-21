@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Http
 
 <html>
 <head>
@@ -6,10 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TrooperCruit</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
 </head>
 <body>
     <nav id="mainNav" class="navbar navbar-expand-xl fixed-top shadow">
@@ -23,7 +29,9 @@
             </button>
             <div class="collapse navbar-collapse justify-content-md-end me-3" id="solutionLayoutNavItems">
                 <ul class="navbar-nav mr-auto">
-                    @{
+                    @if (User.Identity.IsAuthenticated){
+                        
+                        
                         List<string> navItems = (List<string>)ViewData["NavItems"],
                         navLinks = (List<string>)ViewData["NavLinks"];
                         if (navItems != null)
@@ -42,11 +50,11 @@
                                             {
                                                 if (SubMenuLinks[j] == "<hr>")
                                                 {
-                                                    <li><hr class="dropdown-divider"></li>
+                                            <li><hr class="dropdown-divider"></li>
                                                 }
                                                 else
                                                 {
-                                                    <li><a class="dropdown-item" href="@Url.Content(SubMenuLinks[j])">@SubMenus[j]</a></li>
+                                            <li><a class="dropdown-item" href="@Url.Content(SubMenuLinks[j])">@SubMenus[j]</a></li>
                                                 }
                                             }
                                         </ul>
@@ -61,6 +69,35 @@
                             }
                         }
                     }
+
+                   
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                       
+                        <li class="nav-item">
+                             <a id="Attendence" class="nav-link text-danger fw-bold " asp-page="Attendence/index" role="button" >Mark Attendence</a>
+                             
+                        </li>
+
+                       <li class="nav-item">
+                            <a id="logout" class="nav-link text-danger fw-bold " asp-page="Auth/Logout" role="button"><h4>Logout</h4></a>
+                            
+                        </li>
+                      
+                       
+                    }
+
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Auth/Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Auth/Register">Sign Up</a>
+                        </li>
+                    }
+
                 </ul>
             </div>
         </div>
@@ -92,6 +129,7 @@
             <span class="mb-3 mb-md-0 text-muted">© @(DateTime.Now.Year) TrooperCruit</span>
         </div>
 
+
         <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
             @*<li class="ms-3"><a class="nav-link text-white" href="#BrochureBlock"><i class="fa-solid fa-newspaper">&nbsp</i>Brochure</a></li>*@
             <li class="ms-3"><a class="nav-link text-white" href="https://twitter.com/TrooperCruit" target="_blank"><i class="fa-brands fa-twitter"></i></a></li>
@@ -102,6 +140,21 @@
     </footer>
     <script src="~/lib/font-awesome/js/fontawesome.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+  
+
+
+    @section Scripts {
+        <script>
+            
+
+        </script>
+       
+    }
 </body>
 </html>
+
+
+
