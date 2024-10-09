@@ -1,0 +1,56 @@
+﻿@page
+@model MYChamp.Pages.ArticlesF.DeleteModel
+
+<div class="fixed-create-heading">
+    <div class="container">
+        <h2 class="text-danger text-center pt-5 pl-0 pb-0">Delete Article</h2>
+    </div>
+</div>
+
+<form method="post">
+    <input asp-for="Article.Id" hidden />
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border px-3 pt-0 mt-2">
+                <div class="row px-1 pb-1">
+                    <label asp-for="Article.Title" class="p-0">Title</label>
+                    <input asp-for="Article.Title" class="form-control" readonly />
+                </div>
+                <div class="row p-1">
+                    <label asp-for="Article.Description" class="p-0">Description</label>
+                    <textarea asp-for="Article.Description" class="form-control" readonly></textarea>
+                </div>
+                <div class="row p-1">
+                    <label asp-for="Article.Relevancy" class="p-0">Relevancy</label>
+                    <input asp-for="Article.Relevancy" class="form-control" readonly />
+                </div>
+                <div class="row p-1">
+                    <label asp-for="Article.MediaLinks" class="p-0">Media Links</label>
+                    <input asp-for="Article.MediaLinks" class="form-control" readonly />
+                </div>
+                <div class="row p-1">
+                    <label asp-for="Article.Category" class="p-0">Category</label>
+                    <input asp-for="Article.Category" class="form-control" readonly />
+                </div>
+            </div>
+        </div>
+        <div class="col-2 pt-4">
+            @if (Model.Article.CoverImageData != null && Model.Article.CoverImageData.Length > 0)
+            {
+                <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Article.CoverImageData)" width="100%" style="border-radius: 5px; border: 1px solid #bbb9b9" />
+                <br />
+            }
+        </div>
+    </div>
+
+    <div class="row mt-2 mb-5">
+        <div class="col-6 col-md-3">
+            <button type="submit" class="btn btn-danger form-control">Delete</button>
+        </div>
+        <div class="col-6 col-md-3">
+            <a asp-page="./Index" class="btn btn-outline-secondary border form-control">Cancel</a>
+        </div>
+    </div>
+</form>
+

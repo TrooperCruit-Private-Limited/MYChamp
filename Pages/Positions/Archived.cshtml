@@ -1,0 +1,38 @@
+﻿@page
+@model MYChamp.Pages.Positions.ArchivedModel
+
+
+<div class="row align-items-center fixed-top bg-white py-2 shadow-sm" style="z-index: 1030; border-bottom: 1px solid #dee2e6; margin-top:60px;">
+    <div class="col-6">
+        <h2>Archived Employees</h2>
+    </div>
+    <div class="col-6 text-end">
+        <a asp-page="./Index" class="btn btn-primary">Back to Active Positions</a>
+    </div>
+</div> 
+
+<div class="container-fluid" style="padding-top: 90px;">
+<table class="table table-bordered table-group-divider" >
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Allotted Leaves</th>
+            <th> Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Positions)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.AllottedLeaves</td>
+                <td>
+                    <form method="post" asp-page-handler="UnArchive" asp-route-id="@item.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-warning">UnArchive</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

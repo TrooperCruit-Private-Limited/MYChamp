@@ -20,6 +20,10 @@
     font-family: Alba;
     src: url('Alba.ttf');
 }
+#register_btn {
+    color: mediumaquamarine;
+    background-color: aquamarine;
+}
 
 
 :root {
