@@ -1,0 +1,42 @@
+﻿@page
+@model MYChamp.Pages.Employees.CreateModel
+
+<h2 class="pt-5 text-center">New Employee</h2>
+
+<form method="post" class="container-fluid col-10">
+    <div class="form-floating mb-3">
+        <input asp-for="Employee.EmployeeId" class="form-control" id="EmployeeId" placeholder="Employee ID" />
+        <label for="EmployeeId">Employee ID </label>
+        <span asp-validation-for="Employee.EmployeeId" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Employee.Name" class="form-control" id="EmployeeName" placeholder="Name" />
+        <label for="EmployeeName">Name </label>
+        <span asp-validation-for="Employee.Name" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Employee.Email" class="form-control" type="email" id="Email"  placeholder="Email ID"/>
+        <label for="Email">Email Id </label>
+        <span asp-validation-for="Employee.Email" class="text-danger"></span>
+    </div>   
+    <div class="form-floating mb-3">
+        <select asp-for="Employee.PositionId" class="form-control" asp-items="Model.PositionSelectList" id="PositionId">
+            <option value="">-- Select Position --</option>
+        </select>
+        <label for="PositionId">PositionId </label>
+        <span asp-validation-for="Employee.PositionId" class="text-danger"></span>
+    </div>  
+    <div class="form-floating mb-3">
+        <select asp-for="Employee.ReportingManagerId" class="form-control" asp-items="Model.ReportingManagers" id="Reporting">
+            <option value="">-- Select Reporting Manager --</option>
+        </select>
+        <label for="Reporting">Reporting Manager</label>
+        <span asp-validation-for="Employee.ReportingManagerId" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary mt-1">Create</button>
+    <a asp-page="./Index" class="btn btn-secondary mt-1">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

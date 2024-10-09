@@ -1,0 +1,121 @@
+﻿@page
+@model MYChamp.Pages.ArticlesF.CreateModel
+@{
+    ViewData["Title"] = "Create page";
+}
+
+<style>
+    .custom-autocomplete-menu {
+        max-height: 100px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 1050;
+    }
+</style>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="container-fluid p-3">
+        <div class="form-floating mb-3 mt-3">
+            <input asp-for="Article.Title" class="form-control" placeholder="Title" />
+            <label asp-for="Article.Title">Title</label>
+            <span asp-validation-for="Article.Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea asp-for="Article.Description" class="form-control" placeholder="Description" style="height: 100px;"></textarea>
+            <label asp-for="Article.Description">Description</label>
+            <span asp-validation-for="Article.Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea asp-for="Article.Relevancy" class="form-control" placeholder="Relevancy" style="height: 100px;"></textarea>
+            <label asp-for="Article.Relevancy">Relevancy</label>
+            <span asp-validation-for="Article.Relevancy" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="url" asp-for="Article.MediaLinks" class="form-control" placeholder="Media Links" />
+            <label asp-for="Article.MediaLinks">Media Links</label>
+            <span asp-validation-for="Article.MediaLinks" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="email" asp-for="Article.UserEmail" class="form-control" placeholder="User Email" />
+            <label asp-for="Article.UserEmail">User Email</label>
+            <span asp-validation-for="Article.UserEmail" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="file" asp-for="Article.CoverPath" class="form-control" placeholder="Cover Image" accept="image/*" />
+            <label asp-for="Article.CoverPath">Cover Image</label>
+            <span asp-validation-for="Article.CoverPath" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Article.Author" class="form-control" placeholder="Author" />
+            <label asp-for="Article.Author">Author</label>
+            <span asp-validation-for="Article.Author" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Article.AuthorPosition" class="form-control" placeholder="Author Position" />
+            <label asp-for="Article.AuthorPosition">Author Position</label>
+            <span asp-validation-for="Article.AuthorPosition" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Article.Category" id="categoryauto" class="form-control" placeholder="Category" />
+            <label asp-for="Article.Category">Category</label>
+            <span asp-validation-for="Article.Category" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-primary form-control">Create</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var categoryList = ['Education', 'Leadership', 'Software Development', 'Blockchain Technology', 'Internet of Things (IoT)', 'Data Science', 'Artificial Intelligence', 'E-commerce Solutions', 'IT Sales and Marketing', 'Database Management', 'Web Development', 'Business Intelligence', 'Digital Marketing', 'Worklife balance', 'Skills & development', 'Personal development', 'IT', 'software', 'Sales', 'Courses'];
+
+            $("#categoryauto").autocomplete({
+                source: categoryList,
+                autoFocus: true,
+                minLength: 1
+            }).data("ui-autocomplete")._renderMenu = function (ul, items) {
+                var self = this;
+                ul.addClass("custom-autocomplete-menu");
+                $.each(items, function (index, item) {
+                    self._renderItemData(ul, item);
+                });
+            };
+
+            $('form').submit(function (event) {
+                event.preventDefault();
+
+                var form = $(this)[0];
+                var formData = new FormData(form);
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (result) {
+                        $('#CommoniFrameModel').modal('hide');
+                        window.parent.location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        alert('An error occurred: ' + error);
+                    }
+                });
+            });
+
+        });
+    </script>
+}

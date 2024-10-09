@@ -1,0 +1,47 @@
+﻿@page
+@model MYChamp.Pages.Positions.IndexModel
+@{
+    ViewData["Title"] = "Positions";
+}
+ @if (Model.IsHR)
+{
+<div class="container-fluid">
+    <div class="row align-items-center">
+        <div class="col-6">
+            <h2 class="mt-5">Positions</h2>
+        </div>
+      
+            <div class="col-6 text-end">
+                <a asp-page="./Archived" class="btn btn-secondary col-3">InActive Positions</a>
+                <a asp-page="./Create" class="btn btn-primary col-3">Add New Position</a> 
+
+            </div>
+    </div>
+
+<table class="table table-bordered table-group-divider pt-5">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Allotted Leaves</th>
+            <th> Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Positions)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.AllottedLeaves</td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
+                            <form method="post" asp-page-handler="Archive" asp-route-id="@item.Id" style="display:inline;">
+                                <button type="submit" class="btn btn-warning">Inactive</button>
+                            </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+   
+</div>
+}  

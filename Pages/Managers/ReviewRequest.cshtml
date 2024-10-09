@@ -1,0 +1,50 @@
+﻿@page
+@model MYChamp.Pages.Managers.ReviewRequestModel
+@{
+    ViewData["Title"] = "Review Leave Requests";
+}
+
+<h2 class="pt-5 mt-5 fixed-top">Pending Leave Requests</h2>
+
+<table class="table table-bordered pt-5" style="margin-top: 100px;">
+    <thead>
+        <tr>
+            <th>EmployeeId</th>
+            <th>Employee Name</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Reason</th>
+            <th>Number of Days</th>
+            <th>Reporting Manager</th>
+            <th> Date Requested</th>
+            <th>Actions</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model.PendingLeaveRequests)
+        {
+            <tr>
+                <td>@request.Employee.EmployeeId</td>
+                <td>@request.Employee.Name</td>
+                <td>@request.FromDate.ToShortDateString()</td>
+                <td>@request.ToDate.ToShortDateString()</td> 
+                <td>@request.Reason</td>
+                <td>@request.NumberOfDays</td> 
+                <td>@request.Employee.ReportingManagerName</td>
+                <td>@request.DateRequested</td>
+                <td>
+                    <div class="d-flex">
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@request.Id" style="display: inline;">
+                        <button type="submit" class="btn btn-success m-1 ">Approve</button>
+                    </form>
+                    <form method="post" asp-page-handler="Reject" asp-route-id="@request.Id" style="display: inline;">
+                        <button type="submit" class="btn btn-danger m-1">Reject</button>
+                    </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />

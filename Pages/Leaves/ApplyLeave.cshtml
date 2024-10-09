@@ -1,0 +1,87 @@
+﻿@page
+@model MYChamp.Pages.ApplyLeaveModel
+@{
+    ViewData["Title"] = "Apply for Leave";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">Apply for Leave</h2>
+
+    <form method="post">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input asp-for="LeaveApplication.EmployeeId" class="form-control" id="employeeId" placeholder="Employee ID"  readonly />
+                    <label for="employeeId">Employee ID</label>
+                    <span asp-validation-for="LeaveApplication.EmployeeId" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                <input  asp-for="LeaveApplication.Employee.Name" class="form-control" id="name" placeholder="Employee Name" readonly />
+                    <label for="name">Employee </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input asp-for="LeaveApplication.FromDate" class="form-control" id="fromDate" type="date" placeholder="From Date" min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                    <label for="fromDate">From Date</label>
+                    <span asp-validation-for="LeaveApplication.FromDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input asp-for="LeaveApplication.ToDate" class="form-control" id="toDate" type="date" placeholder="To Date" min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                    <label for="toDate">To Date</label>
+                    <span asp-validation-for="LeaveApplication.ToDate" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="form-floating">
+                    <textarea asp-for="LeaveApplication.Reason" class="form-control" id="reason" placeholder="Reason" style="height: 100px;"></textarea>
+                    <label for="reason">Reason</label>
+                    <span asp-validation-for="LeaveApplication.Reason" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="form-floating">
+                    <input asp-for="LeaveApplication.ManagerId" class="form-control" id="managerId" aria-label="Select Manager" readonly> 
+                    </input>
+                    <label for="managerId">Manager</label>
+                    <span asp-validation-for="LeaveApplication.ManagerId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+     @*    <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="form-floating">
+                    <select asp-for="LeaveApplication.ManagerId" asp-items="Model.ManagersList" class="form-control" id="managerId" aria-label="Select Manager">
+                        <option value="">-- Select Manager --</option>
+                    </select>
+                    <label for="managerId">Manager</label>
+                    <span asp-validation-for="LeaveApplication.ManagerId" class="text-danger"></span>
+                </div>
+            </div>
+        </div> *@
+
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a asp-page="Pages/Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
