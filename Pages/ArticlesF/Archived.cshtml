@@ -1,0 +1,53 @@
+﻿@page
+@model MYChamp.Pages.ArticlesF.ArchivedModel
+
+<style>
+    table {
+        margin-top: 50px;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        margin: 0 5px;
+        height: 38px; 
+    }
+</style>
+<div>
+    <h2 class="text-primary pt-5">
+        <a asp-page="/ArticlesF/Index" style="text-decoration: none;">
+            <i class="bi bi-arrow-left-circle-fill"></i>
+        </a>
+        Archived Articles
+    </h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ArchivedArticles)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Category</td>
+                    <td>
+                        <form method="post" asp-page-handler="Unarchive">
+                            <div class="btn-group" role="group">
+                                <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-info">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-arrow-up-square-fill"></i> Unarchive
+                                </button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

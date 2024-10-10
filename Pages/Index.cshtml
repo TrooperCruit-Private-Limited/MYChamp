@@ -4,20 +4,206 @@
 @{
     ViewData["Title"] = "Home page";
 }
-<div class="text-center mt-5">
-    <h1 class="display-4">Welcome</h1>
-    <h5>to</h5>
-    @await Component.InvokeAsync("TitleText")
-    <div class="container col-5 m-auto mt-4">
-        <div class="row">
-            @foreach (VisitUsInformationModel visitUsModel in Model.VisitUs)
-            {
-                <div class="col-2 text-end">
-                    <a href=" @visitUsModel.Link" title="@visitUsModel.Name">
-                        <img class="w-25" src="data:image/@visitUsModel.ImageType;base64,@visitUsModel.Icon" alt="@visitUsModel.Link" />
+<style>
+     .card:hover {
+         transform: translateY(-5px);
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+     }
+
+    /*  .card:hover .card-body {
+             background-color: rgb(0,128,0,0.1);
+         } */
+
+     .card-author,
+     .card-position {
+         font-size: 0.9em;
+         margin: 0;
+         padding: 0;
+     }
+
+     .ui-autocomplete {
+         z-index: 1000;
+         max-height: 200px;
+         overflow-y: auto;
+         overflow-x: hidden;
+     }
+
+</style>
+@if (User.Identity.IsAuthenticated)
+{
+    @* <div class="text-center mt-5 pt-5">
+        <h1 class="display-4 fw-bold text-primary">Welcome</h1>
+        <h5 class="text-muted">to</h5>
+        <h2 class="text-secondary">@await Component.InvokeAsync("TitleText")</h2> *@
+    <div class="row container-fluid bg-primary-subtle">
+        <div class="col-10">
+            <div class=" mt-5 ">
+                <div class="fixed-top header-container d-flex justify-content-between py-3"
+                     style="top: 60px; z-index: 1000; background-color: aliceblue; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <h1 class="text-primary p-2">Articles</h1>
+                    <form asp-page="./Index" method="get" class="d-flex align-items-center">
+                        <label for="categoryDropdown" class="mr-2 mb-0">Categories:</label>
+                        <input id="categoryDropdown" name="SelectedCategory" class="form-control bg-light-subtle" aria-label="Select category">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </form>
+
+                    <div class="search-wrapper d-flex align-items-center ms-3">
+                        <form asp-page="./Index" method="get" class="d-flex w-100">
+                            <input type="text" name="SearchTerm" class="form-control search-bar bg-light" placeholder="Search Articles..." aria-label="Search Articles">
+                            <button class="btn btn-primary search-button" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row mt-5 pt-2 main-content">
+                    @foreach (var item in Model.ArticleList)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card article-card bg-light h-100 rounded-2 position-relative">
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.CoverImageData)"
+                                     class="card-img-top" alt="@item.Title" />
+
+                                @* <div class="position-relative"> *@
+                                    @*                             <i class="fa-solid fa-circle-info info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@item.Relevancy"></i>
+                            *@
+
+                                    <div class="card-body">
+                                        <h5 class="card-title text-dark-emphasis">@item.Title</h5>
+                                        <p class="card-text text-dark">@item.Description</p>
+                                        <p class="card-author text-end text-muted"> @item.Author</p>
+                                        <p class="card-position text-end text-muted"> @item.AuthorPosition</p>
+                                        <a asp-page="/ArticlesF/Details" asp-route-id="@item.Id" class="btn btn-primary">Read More</a>
+                                        <div class="rating-container d-flex mt-2">
+                                            <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star-half-alt text-warning"></i> <i class="far fa-star text-warning"></i>
+                                        </div>
+                                    </div>
+
+
+                               @*  </div> *@
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="row mt-4 pt-5">
+
+                <div class="mt-5 bg-light">
+                    <a asp-page="/Leaves/ApplyLeave" class="text-decoration-none">
+                        <div class="card  border-0 text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title text-dark">Apply Leave</h5>
+                            </div>
+                        </div>
                     </a>
                 </div>
-            }
+
+
+                <div class="mt-2 bg-light">
+                    <a asp-page="/Employees/Index" class="text-decoration-none">
+                        <div class="card  border-0 text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                                <h5 class="card-title text-dark">Employee Details</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+
+                <div class="mt-2 bg-light">
+                    <a asp-page="/Leaves/Index" class="text-decoration-none">
+                        <div class="card border-0 text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-envelope-open-text fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title text-dark">My Leave Requests</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="mt-2 bg-light mb-3">
+                    <a asp-page="/Managers/ReviewRequest" class="text-decoration-none">
+                        <div class="card  border-0 text-center p-4">
+                            <div class="card-body">
+                                <i class="fas fa-tasks fa-3x text-danger mb-3"></i>
+                                <h5 class="card-title text-dark">Pending Approvals</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="position-relative text-center mt-5" style="height: 100vh;">
+        <div class="position-absolute w-100 h-100" style="background-image: url('/images/TC.webp'); background-size: cover; background-position: center; opacity: 0.1; top: 0; left: 0;"></div>
+        <div class="position-relative text-center mt-5 content">
+            <h1 class="display-4 fw-bold text-secondary pt-5">Welcome to MYChamp</h1>
+            <h5 class="fw-bold">Please <a asp-page="/Authentication/LoginPage">log in</a> to view </h5>
+        </div>
+    </div>
+}
+
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            // $('[data-bs-toggle="tooltip"]').tooltip();
+
+            var availableTags = [
+        @foreach (var category in Model.Categories)
+        {
+            @if (category != Model.Categories.Last())
+            {
+                <text>"@category", </text>
+            }
+            else
+            {
+                <text>"@category"</text>
+            }
+        }
+            ];
+
+            $("#categoryDropdown").autocomplete({
+                source: availableTags,
+                minLength: 1,
+                select: function(event, ui) {
+                    $("#categoryDropdown").val(ui.item.value);
+                    $(this).closest('form').submit();
+                }
+            });
+
+            const $searchBar = $(".search-bar");
+            const $searchButton = $(".search-button");
+            const $articleCards = $(".article-card");
+
+            $searchButton.click(function (event) {
+                event.preventDefault();
+                const query = $searchBar.val().toLowerCase();
+                $articleCards.each(function () {
+                    const $card = $(this);
+                    const title = $card.find(".card-title").text().toLowerCase();
+                    const summary = $card.find(".card-text").text().toLowerCase();
+                    if (title.includes(query) || summary.includes(query)) {
+                        $card.parent().show();
+                    } else {
+                        $card.parent().hide();
+                    }
+                });
+            });
+        });
+    </script>
+}
