@@ -3,7 +3,7 @@
 
 <h2 class="pt-5 text-center">New Employee</h2>
 
-<form method="post" class="container-fluid col-10">
+<form method="post" class="container-fluid col-10 mb-5">
     <div class="form-floating mb-3">
         <input asp-for="Employee.EmployeeId" class="form-control" id="EmployeeId" placeholder="Employee ID" />
         <label for="EmployeeId">Employee ID </label>
@@ -18,7 +18,51 @@
         <input asp-for="Employee.Email" class="form-control" type="email" id="Email"  placeholder="Email ID"/>
         <label for="Email">Email Id </label>
         <span asp-validation-for="Employee.Email" class="text-danger"></span>
-    </div>   
+    </div>
+
+    <!-- Responsibilities label and + button -->
+    <div class="mb-3">
+        <label for="responsibilities">Responsibilities</label>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#responsibilitiesModal">
+            +
+        </button>
+        <input type="hidden" asp-for="Employee.ResponsibilityId" />
+        <ul id="selectedResponsibilities" class="list-group mt-2">
+            <!-- Selected responsibilities will be displayed here -->
+        </ul>
+        <span asp-validation-for="Employee.ResponsibilityId" class="text-danger"></span>
+    </div>
+
+    <!-- Modal for selecting responsibilities -->
+    <div class="modal fade" id="responsibilitiesModal" tabindex="-1" aria-labelledby="responsibilitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responsibilitiesModalLabel">Select Responsibilities</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="responsibilitiesList" class="list-group">
+                        @foreach (var responsibility in Model.ResponsibilitySelection)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @responsibility.Text
+                                <button type="button" class="btn btn-success btn-sm add-responsibility" data-id="@responsibility.Value" data-name="@responsibility.Text">+</button>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <!-- Create New button to redirect to Responsibilities/Operational page -->
+                    <button type="button" class="btn btn-primary" id="createNewResponsibility">Create New</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div class="form-floating mb-3">
         <select asp-for="Employee.PositionId" class="form-control" asp-items="Model.PositionSelectList" id="PositionId">
             <option value="">-- Select Position --</option>
@@ -33,6 +77,9 @@
         <label for="Reporting">Reporting Manager</label>
         <span asp-validation-for="Employee.ReportingManagerId" class="text-danger"></span>
     </div>
+    
+
+
     <button type="submit" class="btn btn-primary mt-1">Create</button>
     <a asp-page="./Index" class="btn btn-secondary mt-1">Cancel</a>
 </form>
@@ -40,3 +87,39 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectedResponsibilities = new Set(); // To avoid duplicates
+
+        // Add responsibility when "+" button is clicked in the modal
+        document.querySelectorAll('.add-responsibility').forEach(button => {
+            button.addEventListener('click', function () {
+                const responsibilityId = this.getAttribute('data-id');
+                const responsibilityName = this.getAttribute('data-name');
+
+                // Check if responsibility is already added
+                if (!selectedResponsibilities.has(responsibilityId)) {
+                    selectedResponsibilities.add(responsibilityId);
+
+                    // Add responsibility to the selected list
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = responsibilityName;
+                    document.getElementById('selectedResponsibilities').appendChild(li);
+
+                    // Update hidden input field (separate each value using a new input element)
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'Employee.ResponsibilityIds'; // This creates an array-like behavior
+                    input.value = responsibilityId;
+                    document.querySelector('form').appendChild(input);
+
+                    // Change the button to a tick after selection
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-secondary');
+                    this.textContent = '✓';
+                }
+            });
+        });
+    });
+</script>

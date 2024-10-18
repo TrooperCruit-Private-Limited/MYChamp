@@ -27,7 +27,7 @@
         <label for="PositionId">PositionId </label>
         <span asp-validation-for="Employee.PositionId" class="text-danger"></span>
     </div>
-   
+
     <div class="form-floating mb-3">
         <input asp-for="Employee.RemainingLeaves" class="form-control" id="RemainingLeaves" placeholder="Remaining Leaves" />
         <label for="RemainingLeaves"> Remaining Leaves</label>
@@ -39,6 +39,17 @@
         </select>
         <label for="Reporting">Reporting Manager</label>
         <span asp-validation-for="Employee.ReportingManagerId" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <select asp-for="Employee.ResponsibilityId"
+                class="form-control"
+                asp-items="Model.ResponsibilitySelection"
+                id="Responsibility"
+                multiple="multiple">
+            <option value="">-- Select Responsibility --</option>
+        </select>
+        <label for="Responsibility">Responsibility</label>
+        <span asp-validation-for="Employee.ResponsibilityId" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-page="./Index" class="btn btn-secondary">Cancel</a>

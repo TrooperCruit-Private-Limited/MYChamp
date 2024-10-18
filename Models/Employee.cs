@@ -21,6 +21,10 @@ namespace MYChamp.Models
         public int? ReportingManagerId { get; set; }
         [Column("reportingmanagername")]
         public string? ReportingManagerName { get; set; }
+
+        public List<int>? ResponsibilityId { get; set; } = new List<int>();
+        public List<Responsibility>? Responsibilities { get; set; } 
+
         public bool IsActive { get; set; }
     }
 }

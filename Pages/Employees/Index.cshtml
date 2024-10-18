@@ -1,68 +1,79 @@
 ﻿@page
 @model MYChamp.Pages.Employees.IndexModel
 
-    @if (Model.IsHR)
-    {
-        <div class="row align-items-center fixed-top bg-white py-2 shadow-sm" style="z-index: 1030; border-bottom: 1px solid #dee2e6; margin-top:60px;">
-            <div class="col-6">
-                <h2>Employee List</h2>
-            </div>
-            <div class="col-6 text-end">
-            <a asp-page="/ArticlesF/Index" class="btn btn-primary">Articles</a>
-                <a asp-page="./ArchivedEmployees" class="btn btn-info">Inactive Employees</a>
-                <a asp-page="./Create" class="btn btn-primary">Add New Employee</a>
-            </div>
+@if (Model.IsHR)
+{
+    <div class="row align-items-center fixed-top bg-white py-2 shadow-sm" style="z-index: 1030; border-bottom: 1px solid #dee2e6; margin-top:60px;">
+        <div class="col-6">
+            <h2>Employee List</h2>
         </div>
+        <div class="col-6 text-end">
+            <a asp-page="./ArchivedEmployees" class="btn btn-info">Inactive Employees</a>
+            <a asp-page="./Create" class="btn btn-primary">Add New Employee</a>
+        </div>
+    </div>
 
-        <div class="container-fluid" style="padding-top: 90px;">
-            <table class="table table-bordered  table-striped" id="employeetable">
-                <thead>
+    <div class="container-fluid" style="padding-top: 90px;">
+        <table class="table table-bordered table-striped" id="employeetable">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Position</th>
+                    <th>Remaining Leaves</th>
+                    <th>Reporting Manager</th>
+                    <th>Responsibility</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var employee in Model.Employees)
+                {
                     <tr>
-                        <th>Employee ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Position</th>
-                        <th>Remaining Leaves</th>
-                        <th>Reporting Manager</th>
-                        <th>Actions</th>
+                        <td>@employee.EmployeeId</td>
+                        <td>@employee.Name</td>
+                        <td>@employee.Email</td>
+                        <td>@employee.Position.Name</td>
+                        <td>@employee.RemainingLeaves</td>
+                        <td>@employee.ReportingManagerName</td>
+                        <td>
+                            @if (employee.Responsibilities != null && employee.Responsibilities.Any())
+                            {
+                                @foreach (var responsibility in employee.Responsibilities)
+                                {
+                                    <div>@responsibility.ResponsibilityName</div>
+                                }
+                            }
+                            else
+                            {
+                                <span>No Responsibility Assigned</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-page="./Edit" asp-route-id="@employee.Id" class="btn btn-secondary">Edit</a>
+                            <form method="post" asp-page-handler="Archive" asp-route-id="@employee.Id" style="display:inline;">
+                                <button type="submit" class="btn btn-warning">Inactive</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var employee in Model.Employees)
-                    {
-                        <tr>
-                            <td>@employee.EmployeeId</td>
-                            <td>@employee.Name</td>
-                            <td>@employee.Email</td>
-                            <td>@employee.Position.Name</td>
-                            <td>@employee.RemainingLeaves</td>
-                            <td>@employee.ReportingManagerName</td>
-                            <td>
-                                <a asp-page="./Edit" asp-route-id="@employee.Id" class="btn btn-secondary">Edit</a>                        
-                                <form method="post" asp-page-handler="Archive" asp-route-id="@employee.Id" style="display:inline;">
-                                    <button type="submit" class="btn btn-warning">Inactive</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        <br /><br />
-    }
-    else
-    {
+                }
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <br />
+}
+else
+{
     <div class="container-fluid" style="padding-top: 90px;">
         <h2 class="text-center my-4">My Profile</h2>
 
         <div class="row text-dark justify-content-center">
-           
             <div class="col-md-8">
                 <div class="card shadow-lg border-0 mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-dark mb-3">Personal Information</h5>
-
-                      
                         <div class="row mb-3">
                             <div class="col-sm-4 text-right text-dark"><i class="fas fa-id-badge"></i> <strong>Employee ID:</strong></div>
                             <div class="col-sm-8 text-dark">@Model.CurrentEmployee.EmployeeId</div>
@@ -81,10 +92,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-sm-4 text-right text-dark"><i class="fas fa-calendar-check"></i> <strong>Remaining Leaves:</strong></div>
-                            <div class="col-sm-8 text-dark">
-
-                                <span class="text-dark ">@Model.CurrentEmployee.RemainingLeaves</span>
-                            </div>
+                            <div class="col-sm-8 text-dark">@Model.CurrentEmployee.RemainingLeaves</div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-sm-4 text-right text-dark"><i class="fas fa-user-tie"></i> <strong>Reporting Manager:</strong></div>
@@ -93,7 +101,6 @@
                         <div class="text-center mt-4">
                             <a asp-page="/ArticlesF/Index" class="btn btn-primary">View Articles</a>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -112,16 +119,9 @@
                 .row.mb-3 .col-sm-4 {
                     font-weight: bold;
                 }
-
-            .badge {
-                font-size: 1.2rem;
-                padding: 0.5rem 1rem;
-            }
         </style>
-
     </div>
-
-    }
+}
 
 @section Scripts {
     <script>

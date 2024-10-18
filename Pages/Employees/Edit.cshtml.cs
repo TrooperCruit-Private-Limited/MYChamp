@@ -11,13 +11,13 @@ namespace MYChamp.Pages.Employees
     public class EditModel : PageModel
     {
 
-        
+
         private readonly UserManager<AppUser> _userManager;
         private readonly MYChampDbContext _db;
-        public EditModel( UserManager<AppUser> userManager, MYChampDbContext db)
+        public EditModel(UserManager<AppUser> userManager, MYChampDbContext db)
         {
 
-            
+
             _userManager = userManager;
             _db = db;
         }
@@ -26,6 +26,9 @@ namespace MYChamp.Pages.Employees
         public Employee Employee { get; set; }
         public SelectList PositionSelectList { get; set; }
         public SelectList ReportingManagers { get; set; }
+        public SelectList ResponsibilitySelection { get; set; }
+
+
         public bool IsHR { get; set; }
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -48,6 +51,8 @@ namespace MYChamp.Pages.Employees
 
             PositionSelectList = new SelectList(_db.Positions, "Id", "Name");
             ReportingManagers = new SelectList(_db.Employees, "EmployeeId", "Name");
+            ResponsibilitySelection = new SelectList(_db.Responsibilities, "Id", "ResponsibilityName");
+
             return Page();
         }
 
@@ -58,9 +63,9 @@ namespace MYChamp.Pages.Employees
                 return Page();
             }
 
-               _db.Update(Employee);
-                await _db.SaveChangesAsync();
-               return RedirectToPage("./Index");
+            _db.Update(Employee);
+            await _db.SaveChangesAsync();
+            return RedirectToPage("./Index");
         }
     }
 }

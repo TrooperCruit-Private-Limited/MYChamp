@@ -4,40 +4,40 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MYChamp.DbContexts;
 using MYChamp.Models;
-using System.Runtime.CompilerServices;
 
 namespace MYChamp.Pages.Employees
 {
     public class IndexModel : PageModel
     {
-      
-        private  readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly MYChampDbContext _db;
-        public IndexModel( UserManager<AppUser> userManager,MYChampDbContext db )
+
+        public IndexModel(UserManager<AppUser> userManager, MYChampDbContext db)
         {
-           
             _userManager = userManager;
             _db = db;
         }
 
         public IList<Employee> Employees { get; set; }
-
         public Employee CurrentEmployee { get; set; }
-        public bool IsHR {  get; set; }
+        public bool IsHR { get; set; }
+
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            var data = _db.registerModel.FirstOrDefault(d=>d.EmailId==user.Email);
+            var data = _db.registerModel.FirstOrDefault(d => d.EmailId == user.Email);
             IsHR = data != null && data.JobTitle == "HR";
 
             Employees = new List<Employee>();
-            
-            if (data != null && data.JobTitle == "HR")
+
+            if (IsHR)
             {
                 Employees = await _db.Employees
-                    .Where(e=> !e.IsActive)
+                    .Where(e => !e.IsActive)
                     .Include(e => e.Position)
+                    .Include(e => e.Responsibilities)
                     .ToListAsync();
+
                 foreach (var employee in Employees)
                 {
                     var manager = await _db.Employees
@@ -48,16 +48,15 @@ namespace MYChamp.Pages.Employees
             else
             {
                 CurrentEmployee = await _db.Employees
-            .Include(e => e.Position)
-            .FirstOrDefaultAsync(e => e.Email == user.Email && !e.IsActive);
+                    .Include(e => e.Position)
+                    .FirstOrDefaultAsync(e => e.Email == user.Email && !e.IsActive);
 
                 if (CurrentEmployee != null && CurrentEmployee.ReportingManagerId.HasValue)
                 {
                     var manager = await _db.Employees
                         .FirstOrDefaultAsync(m => m.EmployeeId == CurrentEmployee.ReportingManagerId.Value);
-                    CurrentEmployee.ReportingManagerName = manager?.Name; 
+                    CurrentEmployee.ReportingManagerName = manager?.Name;
                 }
-
             }
         }
 
@@ -72,6 +71,5 @@ namespace MYChamp.Pages.Employees
             }
             return RedirectToPage();
         }
-
     }
 }
