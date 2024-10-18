@@ -38,7 +38,7 @@
                             <td>@employee.RemainingLeaves</td>
                             <td>@employee.ReportingManagerName</td>
                             <td>
-                                <a asp-page="./Edit" asp-route-id="@employee.Id" class="btn btn-secondary">Edit</a>                        
+                                <a asp-page="./Create" asp-route-id="@employee.Id" class="btn btn-secondary">Edit</a>                        
                                 <form method="post" asp-page-handler="Archive" asp-route-id="@employee.Id" style="display:inline;">
                                     <button type="submit" class="btn btn-warning">Inactive</button>
                                 </form>
@@ -52,17 +52,15 @@
     }
     else
     {
-    <div class="container-fluid" style="padding-top: 90px;">
+    <div class="container-fluid text-dark" style="padding-top: 30px;">
         <h2 class="text-center my-4">My Profile</h2>
 
         <div class="row text-dark justify-content-center">
            
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card shadow-lg border-0 mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-dark mb-3">Personal Information</h5>
-
-                      
                         <div class="row mb-3">
                             <div class="col-sm-4 text-right text-dark"><i class="fas fa-id-badge"></i> <strong>Employee ID:</strong></div>
                             <div class="col-sm-8 text-dark">@Model.CurrentEmployee.EmployeeId</div>
@@ -90,12 +88,62 @@
                             <div class="col-sm-4 text-right text-dark"><i class="fas fa-user-tie"></i> <strong>Reporting Manager:</strong></div>
                             <div class="col-sm-8 text-dark">@Model.CurrentEmployee.ReportingManagerName</div>
                         </div>
-                        <div class="text-center mt-4">
-                            <a asp-page="/ArticlesF/Index" class="btn btn-primary">View Articles</a>
-                        </div>
-
+                    
                     </div>
-                </div>
+                </div> 
+              
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h4 class="text-dark mb-0">Articles</h4>
+                        <div class="mb-2">
+                       @*    <h6 class="text-dark border border-dark rounded-4 p-2 me-2 d-inline"><i class="fas fa-plus pe-1"></i> Add</h6> *@
+                        <a href="javascript:void(0);" class="text-dark border border-dark text-decoration-none rounded-4 p-2 me-2 d-inline" onclick="openCommoniFrameModal('/ArticlesF/Create', 'Upload Article')">
+                            <i class="bi bi-plus-circle"></i> Add
+                        </a>
+
+                        <a asp-page="/ArticlesF/Index" class="text-decoration-none text-dark border border-dark rounded-4 p-2 d-inline">
+                            <i class="fas fa-list pe-2"></i>List
+                            @* <h6 class="text-dark border border-dark rounded-4 p-2 d-inline"><i class="fas fa-list pe-2"></i>List</h6> *@
+                        </a>
+                        </div>
+                    </div>
+
+                       
+                 
+                @if (Model.Articles != null && Model.Articles.Count > 0)
+                {
+                    <div class="row">
+                        @foreach (var article in Model.Articles)
+                        {
+                           
+                            <div class="card mb-2 shadow-lg bg-light justify-content-center p-3">
+                                <div class="d-flex justify-content-between align-items-center ">
+                                 <a asp-page="/ArticlesF/Details" asp-route-id="@article.Id" class="text-decoration-none">
+                                    <h5 class="card-title text-dark">@article.Title</h5>
+                                </a>
+                                <a href="javascript:void(0);" class="text-decoration-none text-dark " onclick="openCommoniFrameModal('/ArticlesF/Create?id=@article.Id', 'Edit Article')">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                </div>
+                                <div class="row g-0 align-items-center"> 
+                                    <div class="col-2">
+                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(article.CoverImageData)" class="img-fluid rounded-start" alt="@article.Title" style="max-height: 130px; max-width:150px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-8">
+                                    <p class="card-text text-muted">@article.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        }
+                    </div>
+                }
+              @*   <i class="fas fa-pencil-alt"></i> *@
+                else
+                {
+                    <div class="card shadow-lg">
+                        <h5 class="card-text text-center">No Articles</h5>
+                    </div>
+                }
             </div>
         </div>
 
@@ -122,7 +170,7 @@
     </div>
 
     }
-
+<br /><br />
 @section Scripts {
     <script>
         $(document).ready(function () {

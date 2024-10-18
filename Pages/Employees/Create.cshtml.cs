@@ -28,7 +28,7 @@ namespace MYChamp.Pages.Employees
 
         public SelectList PositionSelectList { get; set; }   
         public SelectList ReportingManagers {  get; set; }
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? id)
         {
             var user = await _userManager.GetUserAsync(User);
             var data = _db.registerModel.FirstOrDefault(d => d.EmailId == user.Email);
@@ -36,6 +36,19 @@ namespace MYChamp.Pages.Employees
                 return RedirectToPage("Pages/Index");
             
             }
+
+            if (id != null)
+            {
+                Employee = await _db.Employees
+                    .Include(e => e.Position)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+            }
+            else
+            {
+                Employee=new Employee();
+            }
+
+
             PositionSelectList = new SelectList(_db.Positions.Where(a=>!a.IsActiveP), "Id", "Name");
             // ReportingManagers = new SelectList(_db.Employees.Where(a=>!a.IsActive) , "EmployeeId", "Name");
 
@@ -65,26 +78,33 @@ namespace MYChamp.Pages.Employees
                 PositionSelectList = new SelectList(_db.Positions, "Id", "Name");
                 return Page();
             }
-
-            var existingEmployee = await _db.Employees
-        .FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
-            if (existingEmployee != null)
+            if (Employee.Id == 0)
             {
-                ModelState.AddModelError("Employee.EmployeeId", "Employee ID must be unique.");
+                var existingEmployee = await _db.Employees
+            .FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
+                if (existingEmployee != null)
+                {
+                    ModelState.AddModelError("Employee.EmployeeId", "Employee ID must be unique.");
 
-                PositionSelectList = new SelectList(_db.Positions, "Id", "Name");
-                ReportingManagers = new SelectList(_db.Employees.Where(a => !a.IsActive), "EmployeeId", "Name");
+                    PositionSelectList = new SelectList(_db.Positions, "Id", "Name");
+                    ReportingManagers = new SelectList(_db.Employees.Where(a => !a.IsActive), "EmployeeId", "Name");
 
-                return Page();
+                    return Page();
+                }
+                var selectedPosition = await _db.Positions.FindAsync(Employee.PositionId);
+                if (selectedPosition != null)
+                {
+                    Employee.RemainingLeaves = selectedPosition.AllottedLeaves;
+                }
+
+
+                await _db.Employees.AddAsync(Employee);
             }
-            var selectedPosition = await _db.Positions.FindAsync(Employee.PositionId);
-            if (selectedPosition != null)
+
+            else
             {
-                Employee.RemainingLeaves = selectedPosition.AllottedLeaves;
+                _db.Update(Employee);
             }
-          
-             
-            await _db.Employees.AddAsync(Employee);
             await _db.SaveChangesAsync();
       
             return RedirectToPage("./Index");

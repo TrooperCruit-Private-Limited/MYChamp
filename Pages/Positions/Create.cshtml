@@ -1,24 +1,23 @@
-﻿@page
+﻿@page "{id?}"
 @model MYChamp.Pages.Positions.CreateModel
-@{
-    ViewData["Title"] = "Create Position";
+{
+    ViewData["Title"] = Model.Position.id == 0 ? "Create Position" : "Edit Position";
 }
 
-<h2 class="pt-5 text-center">Add Position</h2>
+<h2 class="pt-5 text-center">@ViewData["Title"]</h2>
 
 <form method="post" class="container-fluid col-lg-10">
+    <input type="hidden" asp-for="Position.Id" />
     <div class="form-floating mb-3">
-        <input asp-for="Position.Name" class="form-control" id="positionName" placeholder="Position Name" />
-        <label for="positionName">Position Name</label>
+        <input asp-for="Position.Name" class="form-control" id="PositionName" placeholder="Position Name" />
+        <label for="PositionName">Position Name</label>
         <span asp-validation-for="Position.Name" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
-        <input asp-for="Position.AllottedLeaves" class="form-control" id="allottedLeaves" placeholder="Allotted Leaves" />
-        <label for="allottedLeaves">Allotted Leaves</label>
+        <input asp-for="Position.AllottedLeaves" class="form-control" id="PositionLeaves" placeholder="Allotted Leaves" />
+        <label for="PositionLeaves">Allotted Leaves</label>
         <span asp-validation-for="Position.AllottedLeaves" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <input type="submit" value="Add" class="btn btn-primary mt-2" />
-        <a asp-page="./Index" class="btn btn-secondary mt-2">Cancel</a>
-    </div>
+    <button type="submit" class="btn btn-primary mt-2">@((Model.Position.Id == 0) ? "Add" : "Save")</button>
+    <a asp-page="./Index" class="btn btn-secondary mt-2">Cancel</a>
 </form>
