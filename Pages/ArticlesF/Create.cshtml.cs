@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using MYChamp.DbContexts;
 using MYChamp.Models;
 
@@ -23,26 +24,47 @@ namespace MYChamp.Pages.ArticlesF
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public void OnGet()
+        public void OnGet(int? id)
         {
+          if (id == null)
+          { 
             Article = new Article();
             Article.UserEmail = HttpContext.Session.GetString("username");
-        }
-
+          }
+            else
+            {
+                Article = _context.Article.Find(id);
+            }
+    }
         public async Task<IActionResult> OnPostAsync()
         {
-            using (var memoryStream = new MemoryStream())
+            var existingArticle = _context.Article.AsNoTracking().FirstOrDefault(a => a.Id == Article.Id);
+            if (Article.CoverPath != null)
             {
+                using (var memoryStream = new MemoryStream())
+                {
 
-                await Article.CoverPath.CopyToAsync(memoryStream);
-                Article.CoverImageData = memoryStream.ToArray();
+                    await Article.CoverPath.CopyToAsync(memoryStream);
+                    Article.CoverImageData = memoryStream.ToArray();
 
+                }
+            }
+            else
+            {
+                Article.CoverImageData = existingArticle.CoverImageData;
             }
             if (ModelState.IsValid)
-            { 
-                Article.UserEmail = HttpContext.Session.GetString("username");
+            {
+                //  Article.UserEmail = HttpContext.Session.GetString("username");
+                if (Article.Id == 0)
+                {
+                    _context.Article.Add(Article);
+                }
+                else
+                {
+                    _context.Attach(Article).State = EntityState.Modified;
 
-                _context.Article.Add(Article);
+                }
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Article added successfully.";

@@ -13,7 +13,7 @@
       
             <div class="col-6 text-end">
                 <a asp-page="./Archived" class="btn btn-secondary col-3">InActive Positions</a>
-                <a asp-page="./Create" class="btn btn-primary col-3">Add New Position</a> 
+                <a asp-page="./Create"  class="btn btn-primary col-3">Add New Position</a>
 
             </div>
     </div>
@@ -33,7 +33,7 @@
                 <td>@item.Name</td>
                 <td>@item.AllottedLeaves</td>
                 <td>
-                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
+                    <a asp-page="./Create" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
                             <form method="post" asp-page-handler="Archive" asp-route-id="@item.Id" style="display:inline;">
                                 <button type="submit" class="btn btn-warning">Inactive</button>
                             </form>
