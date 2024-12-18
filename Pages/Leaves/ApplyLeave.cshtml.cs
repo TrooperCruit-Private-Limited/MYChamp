@@ -31,7 +31,6 @@ namespace MYChamp.Pages
         {
             var user = await _userManager.GetUserAsync(User);
 
-            
             if (user == null)
             {
                 return RedirectToPage("/Error"); 
@@ -49,11 +48,12 @@ namespace MYChamp.Pages
             }
 
             // Initialize LeaveApplication if null
-            LeaveApplication = new LeaveApplication
+            LeaveApplication = new LeaveApplication()
             {
                 EmployeeId = Employee.EmployeeId,
                 Employee = Employee,
-                ManagerId = (int)Employee.ReportingManagerId
+                ManagerId =Employee.ReportingManagerId.HasValue
+                        ? (int)Employee.ReportingManagerId.Value : 0
 
             };
 
@@ -103,8 +103,11 @@ namespace MYChamp.Pages
 
             LeaveApplication.Status = "Requested";
 
-            LeaveApplication.ManagerId = (int)employee.ReportingManagerId;
+            LeaveApplication.ManagerId = employee.ReportingManagerId.HasValue
+                        ? (int)employee.ReportingManagerId.Value : 0;
+
             var manager = await _context.Employees.FirstOrDefaultAsync(m => m.EmployeeId == LeaveApplication.ManagerId);
+
             if (manager == null)
             {
                 ModelState.AddModelError(string.Empty, "Manager not found.");

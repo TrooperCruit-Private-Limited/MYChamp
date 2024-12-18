@@ -1,0 +1,81 @@
+﻿@page
+@model MYChamp.Pages.PaySlip.SalarySlipModel
+
+<h2 class="mt-5 text-center">Salary Slip</h2>
+
+@if (Model.SalaryDispatch != null)
+{
+    var employee = Model.SalaryDispatch;
+
+    var monthlySalary = employee.MonthlySalary;
+
+    // Calculate deductions
+    var epf = monthlySalary * 0.12m;
+    var professionTax = monthlySalary > 15000 ? 200 : 0;
+    var incomeTax = monthlySalary > 50000 ? monthlySalary * 0.10m : 0;
+
+    var leaveDeductions = 0; // Placeholder for leave deductions, set to 0 if unused
+
+    var totalDeductions = epf + professionTax + incomeTax + leaveDeductions;
+    var netSalary = monthlySalary - totalDeductions;
+
+    <div class="salary-slip">
+        <h3 class="text-center">@employee.EmployeeName's Salary Slip for @DateTime.Now.ToString("MMMM yyyy")</h3>
+
+        <table class="table table-bordered">
+            <tr>
+                <td><b>Bank Name:</b></td>
+                <td>XYZ Bank</td>
+            </tr>
+            <tr>
+                <td><b>A/C No:</b></td>
+                <td>1234567890</td>
+            </tr>
+        </table>
+
+        <h4 class="text-center">Salary Breakdown</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Earnings</th>
+                    <th>Deductions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Basic Salary: @monthlySalary</td>
+                    <td>EPF: @epf</td>
+                </tr>
+                <!-- Add other earnings and corresponding deductions -->
+                <tr>
+                    <td></td>
+                    <td>Professional Tax: @professionTax</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Income Tax: @incomeTax</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Leave Deductions: @leaveDeductions</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4 class="text-center">Summary</h4>
+        <table class="table table-bordered mb-5">
+            <tr>
+                <td><b>Total Deductions:</b></td>
+                <td>@totalDeductions</td>
+            </tr>
+            <tr>
+                <td><b>Net Salary:</b></td>
+                <td>@netSalary</td>
+            </tr>
+        </table>
+    </div>
+}
+else
+{
+    <p class="text-center">No salary records found for the given employee.</p>
+}

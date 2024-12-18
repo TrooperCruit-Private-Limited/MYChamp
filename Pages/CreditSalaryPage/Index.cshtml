@@ -1,0 +1,36 @@
+﻿@page
+@model MYChamp.Pages.CreditSalaryPage.IndexModel
+@{
+    ViewData["Title"] = "Salary Dispatch Records";
+}
+
+<h2 class="mt-5">Salary Dispatch Records</h2>
+
+@if (Model.SalaryDispatchRecords.Any())
+{
+    <table class="table table-striped table-bordered mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th>Dispatch ID</th>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Dispatch Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in Model.SalaryDispatchRecords)
+            {
+                <tr>
+                    <td>@record.Id</td>
+                    <td>@record.EmployeeId</td>
+                    <td>@record.EmployeeName</td>
+                    <td>@record.DispatchDate.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No salary dispatch records found.</p>
+}

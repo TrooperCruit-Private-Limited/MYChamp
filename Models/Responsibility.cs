@@ -13,5 +13,9 @@ namespace MYChamp.Models
         public string ResponsibilityName { get; set; } 
 
         public string? Description { get; set; }
+
+        public ICollection<MenuItem> MenuItems { get; set; }
+
+
     }
 }

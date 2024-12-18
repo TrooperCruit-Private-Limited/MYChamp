@@ -29,7 +29,7 @@ namespace MYChamp.Pages.Authentication
             sessionHandlerController.UpdateSessionInformation(username);
             await _signInManager.SignOutAsync();
             HttpContext.Session.Clear();    
-            return RedirectToPage("/Index");
+            return RedirectToPage("/LoginPage");
         }
     }
 }

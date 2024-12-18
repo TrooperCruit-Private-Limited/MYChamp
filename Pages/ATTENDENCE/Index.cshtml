@@ -1,0 +1,303 @@
+﻿@page
+@model MYChamp.Pages.ATTENDENCE.IndexModel
+
+@{
+    ViewData["Title"] = "Attendence";
+}
+<br />
+<br />
+<h1>Calendar</h1>
+
+<div class="wrapper">
+    <header>
+        <p class="current-date">June 2024</p>
+        <div class="icons">
+            <span id="prev" class="material-symbols-rounded"><</span>
+            <span id="next" class="material-symbols-rounded">></span>
+        </div>
+    </header>
+    <div class="calendar">
+        <ul class="weeks">
+            <li>Sun</li>
+            <li>Mon</li>
+            <li>Tue</li>
+            <li>Wed</li>
+            <li>Thu</li>
+            <li>Fri</li>
+            <li>Sat</li>
+        </ul>
+        <ul class="days">
+            <li class="inactive">26</li>
+            <li class="inactive">27</li>
+            <li class="inactive">28</li>
+            <li class="inactive">29</li>
+            <li class="inactive">30</li>
+            <li class="inactive">31</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+            <li>10</li>
+            <li>11</li>
+            <li>12</li>
+            <li>13</li>
+            <li>14</li>
+            <li>15</li>
+            <li>16</li>
+            <li>17</li>
+            <li>18</li>
+            <li>19</li>
+            <li>20</li>
+            <li>21</li>
+            <li>22</li>
+            <li>23</li>
+            <li>24</li>
+            <li>25</li>
+            <li>26</li>
+            <li>27</li>
+            <li>28</li>
+            <li>29</li>
+            <li>30</li>
+            <li>27</li>
+            <li>28</li>
+            <li>29</li>
+            <li>30</li>
+            <li class="inactive">1</li>
+        </ul>
+    </div>
+
+    <form id="form1" runat="server" method="post">
+
+        <partial name="_Notification" />
+
+        <div class="form-group">
+            <input type="hidden" asp-for="Attendence.MarkedAttendence"/>
+            <input type="hidden" asp-for="Attendence.UserID" />
+
+        </div>
+
+
+        <div class="mb-3 text-center py-4 row">
+            <div class="Col-10 text-center">
+                <button type="submit" class="btn btn-primary" id="Attendence_submit">Add Attendence</button>
+            </div>
+
+        </div>
+
+
+        <style>
+
+            #form1 {
+                position: relative;
+                width: 300px;
+                margin: 0 auto;
+                padding: 20px;
+                top: 250px;
+                block-size: 200px;
+            }
+            #btnSubmit {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+            }
+            #last-punch {
+                font-size: 12px;
+                color: #999;
+                bottom: 10px;
+            }
+            #last-punch-detail {
+                font-size: inherit;
+                color: inherit;
+            }
+        </style>
+    </form>
+
+    <script>
+
+        const daysTag = document.querySelector(".days"),
+            currentDate = document.querySelector(".current-date"),
+            prevNextIcon = document.querySelectorAll(".icons span");
+        let date = new Date(),
+            currYear = date.getFullYear(),
+            currMonth = date.getMonth();
+        const months = ["January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"];
+        const renderCalendar = () => {
+            let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(),
+                lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(),
+                lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(),
+                lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate();
+            let liTag = "";
+            for (let i = firstDayofMonth; i > 0; i--) {
+                liTag += `<li class="inactive">${lastDateofLastMonth - i + 1}</li>`;
+            }
+            for (let i = 1; i <= lastDateofMonth; i++) {
+                let isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "active" : ""; liTag += `<li class="${isToday}">${i}</li>`;
+            }
+            for (let i = lastDayofMonth; i < 6; i++) {
+                liTag += `<li class="inactive">${i - lastDayofMonth + 1}</li>`
+            }
+            currentDate.innerText = `${months[currMonth]} ${currYear}`;
+            daysTag.innerHTML = liTag;
+        }
+        renderCalendar();
+        prevNextIcon.forEach(icon => {
+            icon.addEventListener("click", () => {
+                currMonth = icon.id === "prev" ? currMonth - 1 : currMonth + 1;
+                if (currMonth < 0 || currMonth > 11) {
+                    date = new Date(currYear, currMonth);
+                    currYear = date.getFullYear();
+                    currMonth = date.getMonth();
+                } else {
+                    date = new Date();
+                }
+                renderCalendar();
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: '/api/attendance',
+                method: 'GET',
+                success: function(data) {
+                    var events = data.map(function(record) {
+                        return {
+                            title: record.AttendanceID,
+                            start: record.DateTime,
+                            color: record.MarkedAttendence === 1 ? '#00FF00' : '#FF0000' // Green for present, red for absent
+                        };
+                    });
+                    $('#calendar').fullCalendar({
+                        events: events,
+                        eventRender: function(event, element) {
+                            if (event.color === '#00FF00') {
+                                element.css('background-color', '#00FF00');
+                            } else {
+                                element.css('background-color', '#FF0000');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+</div>
+
+<style>
+    * {
+        margin-top: 5px;
+
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    body {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        justify-content: center;
+        min-height: 10vh;
+        background: White;
+    }
+    .wrapper {
+        width: 400px;
+        height: 400px;
+        background: SkyBlue;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    .wrapper header {
+        height: 15px;
+        display: flex;
+        align-items: center;
+        padding: 25px 20px 10px;
+        justify-content: space-between;
+    }
+    header .icons {
+        display: flex;
+    }
+    header .icons span {
+        height: 38px;
+        width: 38px;
+        margin: 0 1px;
+        cursor: pointer;
+        color: #878787;
+        text-align: center;
+        line-height: 38px;
+        font-size: 1.9rem;
+        user-select: none;
+        border-radius: 50%;
+    }
+    .icons span:last-child {
+        margin-right: -10px;
+    }
+    header .icons span:hover {
+        background: White;
+    }
+    header .current-date {
+        font-size: 1.45rem;
+        font-weight: 500;
+    }
+    .calendar {
+        padding: 20px;
+    }
+    .calendar ul {
+        height: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        text-align: center;
+    }
+    .calendar .days {
+        margin-bottom: 20px;
+    }
+    .calendar li {
+        color: White;
+        width: calc(100% / 7);
+        font-size: 1.07rem;
+    }
+    .calendar .weeks li {
+        font-weight: 500;
+        cursor: default;
+    }
+    .calendar .days li {
+        z-index: 1;
+        cursor: pointer;
+        position: relative;
+        margin-top: 20px;
+    }
+    .days li.inactive {
+        color: Grey;
+    }
+    .days li.active {
+        color: #fff;
+    }
+    .days li::before {
+        position: absolute;
+        content: "";
+        left: 50%;
+        top: 50%;
+        height: 40px;
+        width: 40px;
+        z-index: -1;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .days li.active::before {
+        background: Green;
+    }
+    .days li:not(.active):hover::before {
+        background: black;
+    }
+    .days li.current-date{
+        background: blue;
+    }
+</style>
