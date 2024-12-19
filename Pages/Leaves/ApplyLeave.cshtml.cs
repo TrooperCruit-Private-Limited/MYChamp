@@ -86,7 +86,12 @@ namespace MYChamp.Pages
                 return Page();
             }
 
+            var user = await _userManager.GetUserAsync(User);
+
+
             LeaveApplication.Employee = employee;
+
+            LeaveApplication.UserID = user.Id;
 
            
             LeaveApplication.FromDate = DateTime.SpecifyKind(LeaveApplication.FromDate, DateTimeKind.Utc);

@@ -76,65 +76,65 @@ namespace MYChamp.Pages.ATTENDENCE
                 return Page();
             }
 
-       //     var leaveRequest = await _context.LeaveApplications
-       //.FirstOrDefaultAsync(l => l.UserID == user.Id && l.Date.Date == today && l.IsApproved);
+            var leaveRequest = await _context.LeaveApplications
+                .FirstOrDefaultAsync(l => l.UserID == user.Id && l.DateRequested.Date == today && l.Status == "Approved");
 
-            //if (leaveRequest != null)
-            //{
-            //    // Employee has a permission leave
-            //    Attendence = new AttendenceModel
-            //    {
-            //        UserID = user.Id,
-            //        DateTime = today,
-            //        MarkedAttendence = 0, // Not Present
-            //        LeaveType = 1 // Permission Leave
-            //    };
-            //    _context.Attendence.Add(Attendence);
-            //}
-            //else
-            //{
-            //    // Validate punch time (between 9 AM and 10 AM)
-            //    var currentUtcTime = DateTime.UtcNow;
-            //    var punchStartTime = today.AddHours(9); // 9 AM UTC
-            //    var punchEndTime = today.AddHours(10);  // 10 AM UTC
+            if (leaveRequest != null)
+            {
+                // Employee has a permission leave
+                Attendence = new AttendenceModel
+                {
+                    UserID = user.Id,
+                    DateTime = today,
+                    MarkedAttendence = 0, // Not Present
+                    LeaveType = 1 // Permission Leave
+                };
+                _context.Attendence.Add(Attendence);
+            }
+            else
+            {
+                // Validate punch time (between 9 AM and 10 AM)
+                //var currentUtcTime = DateTime.UtcNow;
+                //var punchStartTime = today.AddHours(9); 
+                //var punchEndTime = today.AddHours(10);  
 
-            //    if (currentUtcTime >= punchStartTime && currentUtcTime <= punchEndTime)
-            //    {
-            //        // Valid punch time
-            //        Attendence = new AttendenceModel
-            //        {
-            //            UserID = user.Id,
-            //            DateTime = currentUtcTime,
-            //            MarkedAttendence = 1, // Present
-            //            LeaveType = 0 // None
-            //        };
-            //        _context.Attendence.Add(Attendence);
-            //    }
-            //    else
-            //    {
-            //        // Invalid punch time, mark as "Not Mentioned"
-            //        Attendence = new AttendenceModel
-            //        {
-            //            UserID = user.Id,
-            //            DateTime = today,
-            //            MarkedAttendence = 0, // Not Present
-            //            LeaveType = 2 // Not Mentioned
-            //        };
-            //        _context.Attendence.Add(Attendence);
-            //    }
-            //}
+                //if (currentUtcTime >= punchStartTime && currentUtcTime <= punchEndTime)
+                //{
+                //    // Valid punch time
+                //    Attendence = new AttendenceModel
+                //    {
+                //        UserID = user.Id,
+                //        DateTime = currentUtcTime,
+                //        MarkedAttendence = 1, // Present
+                //        LeaveType = 0 // None
+                //    };
+                //    _context.Attendence.Add(Attendence);
+                //}
+                //else
+                //{
+                    // Invalid punch time, mark as "Not Mentioned"
+                    Attendence = new AttendenceModel
+                    {
+                        UserID = user.Id,
+                        DateTime = today,
+                        MarkedAttendence = 0, // Not Present
+                        LeaveType = 2 // Not Mentioned
+                    };
+                    _context.Attendence.Add(Attendence);
+                // }
+            }
 
-            //await _context.SaveChangesAsync();
-            //return RedirectToPage("Success");
-
-
-
-            Attendence.DateTime = DateTime.UtcNow;
-            _context.Attendence.Add(Attendence);
             await _context.SaveChangesAsync();
-
-
             return RedirectToPage("Success");
+
+
+
+            //Attendence.DateTime = DateTime.UtcNow;
+            //_context.Attendence.Add(Attendence);
+            //await _context.SaveChangesAsync();
+
+
+            //return RedirectToPage("Success");
         }
     }
 
