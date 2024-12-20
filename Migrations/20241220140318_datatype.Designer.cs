@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MYChamp.Migrations
 {
     [DbContext(typeof(MYChampDbContext))]
-    [Migration("20241218135020_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20241220140318_datatype")]
+    partial class datatype
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -216,8 +216,8 @@ namespace MYChamp.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RemainingLeaves")
-                        .HasColumnType("integer");
+                    b.Property<double>("RemainingLeaves")
+                        .HasColumnType("double precision");
 
                     b.Property<int?>("ReportingManagerId")
                         .HasColumnType("integer");
@@ -285,13 +285,20 @@ namespace MYChamp.Migrations
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsHalfDay")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ManagerId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("NumberOfDays")
-                        .HasColumnType("integer");
+                    b.Property<double>("NumberOfDays")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Session")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -301,6 +308,10 @@ namespace MYChamp.Migrations
 
                     b.Property<DateTime>("ToDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserID")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

@@ -11,17 +11,16 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <div class="form-floating">
-                    <input asp-for="LeaveApplication.EmployeeId" class="form-control" id="employeeId" placeholder="Employee ID"  readonly />
+                    <input asp-for="LeaveApplication.EmployeeId" class="form-control" id="employeeId" placeholder="Employee ID" readonly />
                     <label for="employeeId">Employee ID</label>
                     <span asp-validation-for="LeaveApplication.EmployeeId" class="text-danger"></span>
                 </div>
             </div>
 
-
             <div class="col-md-6 mb-3">
                 <div class="form-floating">
-                <input  asp-for="LeaveApplication.Employee.Name" class="form-control" id="name" placeholder="Employee Name" readonly />
-                    <label for="name">Employee </label>
+                    <input asp-for="LeaveApplication.Employee.Name" class="form-control" id="name" placeholder="Employee Name" readonly />
+                    <label for="name">Employee Name</label>
                 </div>
             </div>
         </div>
@@ -57,25 +56,41 @@
         <div class="row">
             <div class="col-md-12 mb-3">
                 <div class="form-floating">
-                    <input asp-for="LeaveApplication.ManagerId" class="form-control" id="managerId" aria-label="Select Manager" readonly> 
-                    </input>
+                    <input asp-for="LeaveApplication.ManagerId" class="form-control" id="managerId" readonly />
                     <label for="managerId">Manager</label>
                     <span asp-validation-for="LeaveApplication.ManagerId" class="text-danger"></span>
                 </div>
             </div>
         </div>
-     @*    <div class="row">
-            <div class="col-md-12 mb-3">
-                <div class="form-floating">
-                    <select asp-for="LeaveApplication.ManagerId" asp-items="Model.ManagersList" class="form-control" id="managerId" aria-label="Select Manager">
-                        <option value="">-- Select Manager --</option>
-                    </select>
-                    <label for="managerId">Manager</label>
-                    <span asp-validation-for="LeaveApplication.ManagerId" class="text-danger"></span>
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label>Leave Type:</label>
+                <div class="form-check">
+                    <input asp-for="LeaveApplication.IsHalfDay" class="form-check-input" type="radio" id="fullDay" value="false" checked />
+                    <label class="form-check-label" for="fullDay">Full Day</label>
+                </div>
+                <div class="form-check">
+                    <input asp-for="LeaveApplication.IsHalfDay" class="form-check-input" type="radio" id="halfDay" value="true" />
+                    <label class="form-check-label" for="halfDay">Half Day</label>
                 </div>
             </div>
-        </div> *@
+        </div>
 
+        <div class="row mb-3" id="halfDaySession" style="display: none;">
+            <div class="col-md-12">
+                <label>Session:</label>
+                <div class="form-check">
+                    <input asp-for="LeaveApplication.Session" class="form-check-input" type="radio" id="morning" value="Morning" />
+                    <label class="form-check-label" for="morning">Morning</label>
+                </div>
+                <div class="form-check">
+                    <input asp-for="LeaveApplication.Session" class="form-check-input" type="radio" id="afternoon" value="Afternoon" />
+                    <label class="form-check-label" for="afternoon">Afternoon</label>
+                </div>
+                <span asp-validation-for="LeaveApplication.Session" class="text-danger"></span>
+            </div>
+        </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
         <a asp-page="Pages/Index" class="btn btn-secondary">Cancel</a>
@@ -84,4 +99,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const halfDayRadio = document.getElementById("halfDay");
+            const fullDayRadio = document.getElementById("fullDay");
+            const halfDaySessionDiv = document.getElementById("halfDaySession");
+
+            const toggleHalfDaySession = () => {
+                if (halfDayRadio.checked) {
+                    halfDaySessionDiv.style.display = "block";
+                } else {
+                    halfDaySessionDiv.style.display = "none";
+                }
+            };
+
+            halfDayRadio.addEventListener("change", toggleHalfDaySession);
+            fullDayRadio.addEventListener("change", toggleHalfDaySession);
+
+            // Initial setup
+            toggleHalfDaySession();
+        });
+    </script>
 }

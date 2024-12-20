@@ -33,7 +33,7 @@ namespace MYChamp.Models
         [Display(Name = "Date Of Request")]
         public DateTime DateRequested { get; set; }
 
-        public int NumberOfDays { get; set; }
+        public double NumberOfDays { get; set; }
         [ValidateNever]
         public string Status { get; set; }
 
@@ -42,5 +42,9 @@ namespace MYChamp.Models
        
         [ValidateNever]
         public Employee Manager { get; set; }
+
+        public bool IsHalfDay { get; set; } // Indicates half-day leave
+
+        public string Session { get; set; } // "Morning" or "Afternoon"
     }
 }

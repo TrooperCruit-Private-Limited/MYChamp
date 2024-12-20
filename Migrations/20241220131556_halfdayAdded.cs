@@ -5,13 +5,20 @@
 namespace MYChamp.Migrations
 {
     /// <inheritdoc />
-    public partial class useridadded : Migration
+    public partial class halfdayAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<bool>(
+                name: "IsHalfDay",
+                table: "LeaveApplications",
+                type: "boolean",
+                nullable: false,
+                defaultValue: false);
+
             migrationBuilder.AddColumn<string>(
-                name: "UserID",
+                name: "Session",
                 table: "LeaveApplications",
                 type: "text",
                 nullable: false,
@@ -22,7 +29,11 @@ namespace MYChamp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "UserID",
+                name: "IsHalfDay",
+                table: "LeaveApplications");
+
+            migrationBuilder.DropColumn(
+                name: "Session",
                 table: "LeaveApplications");
         }
     }

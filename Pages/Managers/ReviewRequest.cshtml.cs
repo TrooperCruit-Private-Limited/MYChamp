@@ -79,6 +79,7 @@ namespace MYChamp.Pages.Managers
 
                
                 var employee = leaveApplication.Employee;
+
                 if (employee != null)
                 {
                     employee.RemainingLeaves -= leaveApplication.NumberOfDays;

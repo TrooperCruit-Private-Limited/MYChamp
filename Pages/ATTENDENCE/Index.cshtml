@@ -84,7 +84,14 @@
 
         <div class="mb-3 text-center py-4 row">
             <div class="Col-10 text-center">
-                <button type="submit" class="btn btn-primary" id="Attendence_submit">Add Attendence</button>
+                @if (!Model.IsAttendanceAdded)
+                {
+                    <button type="submit" class="btn btn-primary" id="Attendence_submit">Add Attendance</button>
+                }
+                else
+                {
+                    <p class="text-success">Attendance already added for today.</p>
+                }
             </div>
 
         </div>

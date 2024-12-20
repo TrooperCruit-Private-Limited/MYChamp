@@ -213,8 +213,8 @@ namespace MYChamp.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RemainingLeaves")
-                        .HasColumnType("integer");
+                    b.Property<double>("RemainingLeaves")
+                        .HasColumnType("double precision");
 
                     b.Property<int?>("ReportingManagerId")
                         .HasColumnType("integer");
@@ -282,13 +282,20 @@ namespace MYChamp.Migrations
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsHalfDay")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ManagerId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("NumberOfDays")
-                        .HasColumnType("integer");
+                    b.Property<double>("NumberOfDays")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Session")
                         .IsRequired()
                         .HasColumnType("text");
 

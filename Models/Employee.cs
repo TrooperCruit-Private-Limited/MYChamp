@@ -20,7 +20,7 @@ namespace MYChamp.Models
         [ValidateNever]
         public Position Position { get; set; }
 
-        public int RemainingLeaves { get; set; }
+        public double RemainingLeaves { get; set; }
         public int? ReportingManagerId { get; set; }
 
         public int Salary { get; set; }

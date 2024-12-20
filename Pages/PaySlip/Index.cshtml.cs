@@ -33,10 +33,10 @@ namespace MYChamp.Pages.PaySlip
                 var epf = monthlySalary * 0.12m;
                 var professionTax = monthlySalary > 15000 ? 200 : 0;
                 var incomeTax = monthlySalary > 50000 ? monthlySalary * 0.10m : 0;
-                var leaveDeductions = (employee.RemainingLeaves < 0 ? -employee.RemainingLeaves : 0) * (monthlySalary / 30);
+                var leaveDeductions = (employee.RemainingLeaves < 0 ? -employee.RemainingLeaves : 0) * ((double)monthlySalary / 30);
 
-                var totalDeductions = epf + professionTax + incomeTax  + leaveDeductions;
-                var netSalary = monthlySalary - totalDeductions;
+                var totalDeductions = (double)epf + (double)professionTax + (double)incomeTax + leaveDeductions;
+                var netSalary = (double)monthlySalary - (double)totalDeductions;
 
                 var dispatch = await _db.SalaryDispatches
                     .FirstOrDefaultAsync(s => s.EmployeeId == employee.EmployeeId);
@@ -49,8 +49,8 @@ namespace MYChamp.Pages.PaySlip
                     EPF = Math.Round(epf, 2),
                     ProfessionTax = Math.Round((decimal)professionTax, 2),
                     IncomeTax = Math.Round(incomeTax, 2),
-                    LeaveDeductions = Math.Round(leaveDeductions, 2),
-                    NetSalary = Math.Round(netSalary, 2),
+                    LeaveDeductions = Math.Round((decimal)leaveDeductions, 2),
+                    NetSalary = Math.Round((decimal)netSalary, 2),
                     DispatchDate = dispatch?.DispatchDate,
                 });
             }

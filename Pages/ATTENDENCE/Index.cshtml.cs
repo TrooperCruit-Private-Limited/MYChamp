@@ -34,6 +34,8 @@ namespace MYChamp.Pages.ATTENDENCE
         [BindProperty]
         public AttendenceModel Attendence { get; set; } = default;
 
+        public bool IsAttendanceAdded { get; set; }
+
         public LeaveApplication LeaveApplications { get; set; }
  
         public async Task<IActionResult> OnGetAsync()
@@ -45,10 +47,20 @@ namespace MYChamp.Pages.ATTENDENCE
             
             }
 
-            Attendence = new AttendenceModel();
-            Attendence.UserID = user.Id ;
+            var today = DateTime.UtcNow.Date;
+            var existingAttendance = await _context.Attendence
+                .FirstOrDefaultAsync(a => a.UserID == user.Id && a.DateTime.Date == today);
+
+            Attendence = new AttendenceModel
+            {
+                UserID = user.Id
+            };
+
+            // Check if attendance already exists
+            IsAttendanceAdded = existingAttendance != null;
 
             return Page();
+          
         }
 
         public async Task<IActionResult> OnPostAsync()

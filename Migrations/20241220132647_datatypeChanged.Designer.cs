@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MYChamp.Migrations
 {
     [DbContext(typeof(MYChampDbContext))]
-    [Migration("20241219125850_addeduserId")]
-    partial class addeduserId
+    [Migration("20241220132647_datatypeChanged")]
+    partial class datatypeChanged
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -285,13 +285,20 @@ namespace MYChamp.Migrations
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsHalfDay")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ManagerId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("NumberOfDays")
-                        .HasColumnType("integer");
+                    b.Property<double>("NumberOfDays")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Session")
                         .IsRequired()
                         .HasColumnType("text");
 

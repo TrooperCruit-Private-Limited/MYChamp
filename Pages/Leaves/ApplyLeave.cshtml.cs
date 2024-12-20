@@ -97,9 +97,24 @@ namespace MYChamp.Pages
             LeaveApplication.FromDate = DateTime.SpecifyKind(LeaveApplication.FromDate, DateTimeKind.Utc);
             LeaveApplication.ToDate = DateTime.SpecifyKind(LeaveApplication.ToDate, DateTimeKind.Utc);
             LeaveApplication.DateRequested = DateTime.UtcNow;
-            LeaveApplication.NumberOfDays = CalculateLeaveDaysExcludingWeekends(LeaveApplication.FromDate, LeaveApplication.ToDate);
 
-       
+            if (LeaveApplication.IsHalfDay)
+            {
+                if (string.IsNullOrEmpty(LeaveApplication.Session))
+                {
+                    ModelState.AddModelError(string.Empty, "Please select a session for half-day leave.");
+                    return Page();
+                }
+
+                // Adjust the leave duration based on the session (morning or afternoon)
+                // Assuming a half-day leave counts as 0.5 day
+                LeaveApplication.NumberOfDays = 0.5;
+            }
+            else
+            {
+                LeaveApplication.NumberOfDays = CalculateLeaveDaysExcludingWeekends(LeaveApplication.FromDate, LeaveApplication.ToDate);
+            }
+
             if (employee.RemainingLeaves < LeaveApplication.NumberOfDays)
             {
                 ModelState.AddModelError(string.Empty, "Not enough remaining leaves.");
