@@ -20,6 +20,8 @@ namespace MYChamp.DbContexts
         public DbSet<MenuItem> MenuItem { get; set; }
         public DbSet<SalaryDispatch> SalaryDispatches { get; set; }
         public DbSet<AttendenceModel> Attendence { get; set; }
+        public DbSet<LeaveDetail> LeaveDetails { get; set; }
+
 
         public MYChampDbContext(DbContextOptions<MYChampDbContext> options) : base(options)
         {

@@ -11,6 +11,7 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <div class="form-floating">
+                    <input type="hidden" asp-for="LeaveApplication.UserID" />
                     <input asp-for="LeaveApplication.EmployeeId" class="form-control" id="employeeId" placeholder="Employee ID" readonly />
                     <label for="employeeId">Employee ID</label>
                     <span asp-validation-for="LeaveApplication.EmployeeId" class="text-danger"></span>
@@ -53,47 +54,10 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <div class="form-floating">
-                    <input asp-for="LeaveApplication.ManagerId" class="form-control" id="managerId" readonly />
-                    <label for="managerId">Manager</label>
-                    <span asp-validation-for="LeaveApplication.ManagerId" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label>Leave Type:</label>
-                <div class="form-check">
-                    <input asp-for="LeaveApplication.IsHalfDay" class="form-check-input" type="radio" id="fullDay" value="false" checked />
-                    <label class="form-check-label" for="fullDay">Full Day</label>
-                </div>
-                <div class="form-check">
-                    <input asp-for="LeaveApplication.IsHalfDay" class="form-check-input" type="radio" id="halfDay" value="true" />
-                    <label class="form-check-label" for="halfDay">Half Day</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-3" id="halfDaySession" style="display: none;">
-            <div class="col-md-12">
-                <label>Session:</label>
-                <div class="form-check">
-                    <input asp-for="LeaveApplication.Session" class="form-check-input" type="radio" id="morning" value="Morning" />
-                    <label class="form-check-label" for="morning">Morning</label>
-                </div>
-                <div class="form-check">
-                    <input asp-for="LeaveApplication.Session" class="form-check-input" type="radio" id="afternoon" value="Afternoon" />
-                    <label class="form-check-label" for="afternoon">Afternoon</label>
-                </div>
-                <span asp-validation-for="LeaveApplication.Session" class="text-danger"></span>
-            </div>
-        </div>
+        <div id="leaveDetailsContainer"></div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
-        <a asp-page="Pages/Index" class="btn btn-secondary">Cancel</a>
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 
@@ -101,23 +65,44 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const halfDayRadio = document.getElementById("halfDay");
-            const fullDayRadio = document.getElementById("fullDay");
-            const halfDaySessionDiv = document.getElementById("halfDaySession");
+            const fromDateInput = document.getElementById("fromDate");
+            const toDateInput = document.getElementById("toDate");
+            const leaveDetailsContainer = document.getElementById("leaveDetailsContainer");
 
-            const toggleHalfDaySession = () => {
-                if (halfDayRadio.checked) {
-                    halfDaySessionDiv.style.display = "block";
-                } else {
-                    halfDaySessionDiv.style.display = "none";
+            function generateLeaveOptions() {
+                leaveDetailsContainer.innerHTML = ""; // Clear previous leave details
+                const fromDate = new Date(fromDateInput.value);
+                const toDate = new Date(toDateInput.value);
+
+                if (fromDate > toDate) return; // If from date is after to date, no leave options are generated.
+
+                let currentDate = new Date(fromDate);
+                while (currentDate <= toDate) {
+                    const formattedDate = currentDate.toISOString().split('T')[0];
+                    const dayContainer = document.createElement("div");
+                    dayContainer.className = "mb-3";
+                    dayContainer.innerHTML = `
+                        <label>${formattedDate} Leave Type:</label>
+                        <div class="form-check">
+                            <input type="radio" name="leaveType_${formattedDate}" value="1" class="form-check-input" id="fullDay_${formattedDate}" checked />
+                            <label class="form-check-label" for="fullDay_${formattedDate}">Full Day</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="leaveType_${formattedDate}" value="0.5M" class="form-check-input" id="halfDayMorning_${formattedDate}" />
+                            <label class="form-check-label" for="halfDayMorning_${formattedDate}">Half Day - Morning</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="leaveType_${formattedDate}" value="0.5A" class="form-check-input" id="halfDayAfternoon_${formattedDate}" />
+                            <label class="form-check-label" for="halfDayAfternoon_${formattedDate}">Half Day - Afternoon</label>
+                        </div>
+                    `;
+                    leaveDetailsContainer.appendChild(dayContainer);
+                    currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
                 }
-            };
+            }
 
-            halfDayRadio.addEventListener("change", toggleHalfDaySession);
-            fullDayRadio.addEventListener("change", toggleHalfDaySession);
-
-            // Initial setup
-            toggleHalfDaySession();
+            fromDateInput.addEventListener("change", generateLeaveOptions);
+            toDateInput.addEventListener("change", generateLeaveOptions);
         });
     </script>
 }

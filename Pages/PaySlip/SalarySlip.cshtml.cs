@@ -18,7 +18,7 @@ namespace MYChamp.Pages.PaySlip
             _userManager = userManager;
         }
 
-        public SalaryDispatch SalaryDispatch { get; set; } = new();
+        public List<SalaryDispatch> SalaryDispatchRecords { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -31,15 +31,16 @@ namespace MYChamp.Pages.PaySlip
                 // If email is null or user is not authenticated, redirect to the login page
                 if (string.IsNullOrEmpty(email))
                 {
-                    return RedirectToPage("/Account/Login");
+                    return RedirectToPage("/Authentication/LoginPage");
                 }
 
                 // Fetch the salary dispatch record associated with the user's email
-                SalaryDispatch = await _db.SalaryDispatches
-                    .FirstOrDefaultAsync(s => s.Email == email);
+                SalaryDispatchRecords = await _db.SalaryDispatches
+                    .Where(s => s.Email == email)
+                    .ToListAsync();
 
                 // If no record is found, display an error message
-                if (SalaryDispatch == null)
+                if (SalaryDispatchRecords == null)
                 {
                     TempData["ErrorMessage"] = "No salary records found for your account.";
                     return Page();

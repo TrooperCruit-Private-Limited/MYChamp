@@ -15,6 +15,7 @@
                 <th>Employee ID</th>
                 <th>Name</th>
                 <th>Dispatch Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,9 @@
                     <td>@record.EmployeeId</td>
                     <td>@record.EmployeeName</td>
                     <td>@record.DispatchDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        <a asp-page="/PaySlip/SalarySlipDetails" asp-route-id="@record.Id" class="btn btn-primary">Print</a>
+                    </td>
                 </tr>
             }
         </tbody>

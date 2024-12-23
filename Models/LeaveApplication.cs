@@ -45,6 +45,8 @@ namespace MYChamp.Models
 
         public bool IsHalfDay { get; set; } // Indicates half-day leave
 
-        public string Session { get; set; } // "Morning" or "Afternoon"
+        [ValidateNever]
+        public List<LeaveDetail> LeaveDetails { get; set; } // LeaveDetails for each leave application
+
     }
 }

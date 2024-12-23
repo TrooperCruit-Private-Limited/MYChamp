@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MYChamp.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MYChamp.Migrations
 {
     [DbContext(typeof(MYChampDbContext))]
-    partial class MYChampDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241223095235_leaveDetailAdded")]
+    partial class leaveDetailAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -323,11 +326,7 @@ namespace MYChamp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("LeaveApplicationId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("LeaveApplicationId1")
+                    b.Property<int>("LeaveApplicationId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("LeaveDate")
@@ -339,7 +338,7 @@ namespace MYChamp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaveApplicationId1");
+                    b.HasIndex("LeaveApplicationId");
 
                     b.ToTable("LeaveDetails");
                 });
@@ -919,7 +918,9 @@ namespace MYChamp.Migrations
                 {
                     b.HasOne("MYChamp.Models.LeaveApplication", null)
                         .WithMany("LeaveDetails")
-                        .HasForeignKey("LeaveApplicationId1");
+                        .HasForeignKey("LeaveApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MYChamp.Models.MenuItem", b =>
