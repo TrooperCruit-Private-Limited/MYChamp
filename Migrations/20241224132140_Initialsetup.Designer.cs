@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MYChamp.Migrations
 {
     [DbContext(typeof(MYChampDbContext))]
-    [Migration("20241223102103_leaveDetaildatatype")]
-    partial class leaveDetaildatatype
+    [Migration("20241224132140_Initialsetup")]
+    partial class Initialsetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

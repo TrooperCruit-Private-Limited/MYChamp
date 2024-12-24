@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MYChamp.Controller;
 using MYChamp.DbContexts;
-using MYChamp.Migrations;
+//using MYChamp.Migrations;
 using MYChamp.Models;
 
 namespace MYChamp.Pages.ATTENDENCE

@@ -88,7 +88,7 @@ namespace MYChamp.Pages.Authentication
                   
 
                     
-                    return RedirectToPage("/Authentication/Login");
+                    return RedirectToPage("/Authentication/LoginPage");
                 }
                 else
                 {
