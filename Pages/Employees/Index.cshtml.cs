@@ -23,6 +23,7 @@ namespace MYChamp.Pages.Employees
         public IList<Employee> Employees { get; set; }
 
         public Employee CurrentEmployee { get; set; }
+        public IList<Article> Articles { get; set; }
         public bool IsHR {  get; set; }
         public async Task OnGetAsync()
         {
@@ -57,8 +58,10 @@ namespace MYChamp.Pages.Employees
                         .FirstOrDefaultAsync(m => m.EmployeeId == CurrentEmployee.ReportingManagerId.Value);
                     CurrentEmployee.ReportingManagerName = manager?.Name; 
                 }
-
             }
+            Articles = await _db.Article
+         .Where(a => a.UserEmail == user.Email && !a.IsArchived)
+         .ToListAsync();
         }
 
         public async Task<IActionResult> OnPostArchiveAsync(int id)
