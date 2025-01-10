@@ -31,7 +31,6 @@ namespace MYChamp.Pages
         {
             var user = await _userManager.GetUserAsync(User);
 
-            
             if (user == null)
             {
                 return RedirectToPage("/Error"); 
@@ -49,11 +48,14 @@ namespace MYChamp.Pages
             }
 
             // Initialize LeaveApplication if null
-            LeaveApplication = new LeaveApplication
+            LeaveApplication = new LeaveApplication()
             {
                 EmployeeId = Employee.EmployeeId,
                 Employee = Employee,
-                ManagerId = (int)Employee.ReportingManagerId
+                ManagerId =Employee.ReportingManagerId.HasValue
+                        ? (int)Employee.ReportingManagerId.Value : 0,
+
+                UserID = user.Id
 
             };
 
@@ -78,7 +80,6 @@ namespace MYChamp.Pages
                 return Page();
             }
 
-           
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == LeaveApplication.EmployeeId);
             if (employee == null)
             {
@@ -86,24 +87,64 @@ namespace MYChamp.Pages
                 return Page();
             }
 
-            LeaveApplication.Employee = employee;
+            var user = await _userManager.GetUserAsync(User);
 
-           
+            LeaveApplication.Employee = employee;
+            LeaveApplication.UserID = user.Id;
+            LeaveApplication.DateRequested = DateTime.UtcNow;
+
             LeaveApplication.FromDate = DateTime.SpecifyKind(LeaveApplication.FromDate, DateTimeKind.Utc);
             LeaveApplication.ToDate = DateTime.SpecifyKind(LeaveApplication.ToDate, DateTimeKind.Utc);
-            LeaveApplication.DateRequested = DateTime.UtcNow;
-            LeaveApplication.NumberOfDays = CalculateLeaveDaysExcludingWeekends(LeaveApplication.FromDate, LeaveApplication.ToDate);
 
-       
-            if (employee.RemainingLeaves < LeaveApplication.NumberOfDays)
+            // Create a list to hold the leave details for each day
+            List<LeaveDetail> leaveDetails = new List<LeaveDetail>();
+
+            DateTime currentDay = LeaveApplication.FromDate;
+            double totalLeaveDays = 0;
+
+            while (currentDay <= LeaveApplication.ToDate)
             {
-                ModelState.AddModelError(string.Empty, "Not enough remaining leaves.");
-                return Page();
+                string leaveType = Request.Form[$"leaveType_{currentDay:yyyy-MM-dd}"];
+
+                // Add a leave detail entry for each day
+                if (!string.IsNullOrEmpty(leaveType))
+                {
+                    LeaveDetail leaveDetail = new LeaveDetail
+                    {
+                        LeaveDate = currentDay,
+                        LeaveType = leaveType,
+                        LeaveApplicationId = user.Id
+                    };
+
+                    leaveDetails.Add(leaveDetail);
+
+                    // Calculate total leave days based on the leave type
+                    //if (leaveType == "1")  // Full Day
+                    //{
+                    //    totalLeaveDays += 1.0;
+                    //}
+                    //else if (leaveType == "0.5M" || leaveType == "0.5A")  // Half Day
+                    //{
+                    //    totalLeaveDays += 0.5;
+                    //}
+                }
+
+                currentDay = currentDay.AddDays(1);
             }
 
-            LeaveApplication.Status = "Requested";
+            // Exclude weekends from the total leave days
+            totalLeaveDays = CalculateLeaveDaysExcludingWeekends(LeaveApplication.FromDate, LeaveApplication.ToDate, leaveDetails);
 
-            LeaveApplication.ManagerId = (int)employee.ReportingManagerId;
+            //if (employee.RemainingLeaves < totalLeaveDays)
+            //{
+            //    ModelState.AddModelError(string.Empty, "Not enough remaining leaves.");
+            //    return Page();
+            //}
+
+            LeaveApplication.NumberOfDays = totalLeaveDays;
+            LeaveApplication.Status = "Requested";
+            LeaveApplication.ManagerId = employee.ReportingManagerId.HasValue ? employee.ReportingManagerId.Value : 0;
+
             var manager = await _context.Employees.FirstOrDefaultAsync(m => m.EmployeeId == LeaveApplication.ManagerId);
             if (manager == null)
             {
@@ -113,26 +154,35 @@ namespace MYChamp.Pages
 
             LeaveApplication.Manager = manager;
 
-            
+            // Save the leave application and leave details
             _context.LeaveApplications.Add(LeaveApplication);
+
+            // Add the leave details for each day to the database
+            foreach (var detail in leaveDetails)
+            {
+                _context.LeaveDetails.Add(detail);
+            }
+
+            // Update the employee's remaining leaves
+            employee.RemainingLeaves -= (int)LeaveApplication.NumberOfDays;
             _context.Employees.Update(employee);
 
             await _context.SaveChangesAsync();
+
             return RedirectToPage("Index");
         }
 
-        private int CalculateLeaveDaysExcludingWeekends(DateTime fromDate, DateTime toDate)
+        private double CalculateLeaveDaysExcludingWeekends(DateTime fromDate, DateTime toDate, List<LeaveDetail> leaveDetails)
         {
-            int totalDays = 0;
-            DateTime currentDay = fromDate;
+            double totalDays = 0;
 
-            while (currentDay <= toDate)
+            // Loop through the leave details to exclude weekends
+            foreach (var detail in leaveDetails)
             {
-                if (currentDay.DayOfWeek != DayOfWeek.Saturday && currentDay.DayOfWeek != DayOfWeek.Sunday)
+                if (detail.LeaveDate.DayOfWeek != DayOfWeek.Saturday && detail.LeaveDate.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    totalDays++;
+                    totalDays += (detail.LeaveType == "1") ? 1.0 : 0.5;  // Full day or half day
                 }
-                currentDay = currentDay.AddDays(1);
             }
 
             return totalDays;

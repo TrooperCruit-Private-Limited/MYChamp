@@ -1,18 +1,20 @@
 ﻿@page
-@model MYChamp.Pages.Employees.CreateModel
+@model MYChamp.Pages.Employees.EditModel
 
-<h2 class="pt-5 text-center">New Employee</h2>
+<h2 class="pt-5 text-center">Edit Employee Details</h2>
 
 <form method="post" class="container-fluid col-10">
+    <input type="hidden" asp-for="Employee.Id" />
+
     <div class="form-floating mb-3">
         <input asp-for="Employee.EmployeeId" class="form-control" id="EmployeeId" placeholder="Employee ID" />
         <label for="EmployeeId">Employee ID</label>
         <span asp-validation-for="Employee.EmployeeId" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
-        <input asp-for="Employee.Salary" class="form-control" id="EmployeeSalary" placeholder="Salary" />
-        <label for="EmployeeSalary">Salary per annum</label>
-        <span asp-validation-for="Employee.Salary" class="text-danger"></span>
+        <input asp-for="Employee.Name" class="form-control" id="EmployeeName" placeholder="Name" />
+        <label for="EmployeeName">Name</label>
+        <span asp-validation-for="Employee.Name" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
         <input asp-for="Employee.Email" class="form-control" type="email" id="Email" placeholder="Email ID" />
@@ -20,9 +22,9 @@
         <span asp-validation-for="Employee.Email" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
-        <input asp-for="Employee.Name" class="form-control" id="EmployeeName" placeholder="Name" />
-        <label for="EmployeeName">Name</label>
-        <span asp-validation-for="Employee.Name" class="text-danger"></span>
+        <input asp-for="Employee.Salary" class="form-control" id="EmployeeSalary" placeholder="Salary" />
+        <label for="EmployeeSalary">Salary per annum</label>
+        <span asp-validation-for="Employee.Salary" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
         <select asp-for="Employee.PositionId" class="form-control" asp-items="Model.PositionSelectList" id="PositionId">
@@ -39,19 +41,21 @@
         <span asp-validation-for="Employee.ReportingManagerId" class="text-danger"></span>
     </div>
 
-    <!-- Responsibility Text and Button -->
-    <div class="mb-3">
-        <label>Responsibilities</label>
-        <button type="button" class="btn btn-secondary ms-2" data-bs-toggle="modal" data-bs-target="#responsibilityModal">
-            + Add
-        </button>
-    </div>
-
     <!-- Hidden input to store selected Responsibility IDs -->
     <input type="hidden" id="SelectedResponsibilityIds" asp-for="ResponsibilityIds" />
 
     <!-- Display selected responsibilities here -->
-    <ul id="selectedResponsibilitiesList" class="list-unstyled"></ul>
+    <ul id="selectedResponsibilitiesList">
+        @foreach (var responsibility in Model.ResponsibilityList.Where(r => Model.ResponsibilityIds.Split(',').Select(int.Parse).Contains(r.Id)))
+        {
+            <li id="selected-@responsibility.Id">@responsibility.ResponsibilityName</li>
+        }
+    </ul>
+
+    <!-- Button to trigger the modal -->
+    <button type="button" class="btn btn-secondary mt-3 d-block" data-bs-toggle="modal" data-bs-target="#responsibilityModal">
+        Add/Remove Responsibilities
+    </button>
 
     <!-- Modal -->
     <div class="modal fade" id="responsibilityModal" tabindex="-1" aria-labelledby="responsibilityModalLabel" aria-hidden="true">
@@ -64,9 +68,15 @@
                 <div class="modal-body">
                     @foreach (var responsibility in Model.ResponsibilityList)
                     {
+                        var isSelected = Model.ResponsibilityIds.Split(',').Contains(responsibility.Id.ToString());
+
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span>@responsibility.ResponsibilityName</span>
-                            <button type="button" class="btn btn-primary btn-sm" id="responsibilityBtn-@responsibility.Id" onclick="toggleResponsibility(@responsibility.Id, '@responsibility.ResponsibilityName')">+</button>
+                            <button type="button" class="btn btn-sm"
+                                    id="responsibilityBtn-@responsibility.Id"
+                                    onclick="toggleResponsibility(@responsibility.Id, '@responsibility.ResponsibilityName')">
+                                @(isSelected ? "✓" : "+")
+                            </button>
                         </div>
                     }
                 </div>
@@ -76,17 +86,19 @@
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary mt-1 mb-5">Create</button>
+
+    <button type="submit" class="btn btn-primary mt-1 mb-5">Save</button>
     <a asp-page="./Index" class="btn btn-secondary mt-1 mb-5">Cancel</a>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        var selectedResponsibilities = [];
+        // Initialize selectedResponsibilities from the hidden input value
+        var selectedResponsibilities = '@Html.Raw(Model.ResponsibilityIds ?? string.Empty)'.split(',');
 
         function toggleResponsibility(id, name) {
-            const index = selectedResponsibilities.indexOf(id);
+            const index = selectedResponsibilities.indexOf(id.toString());
             const button = document.getElementById(`responsibilityBtn-${id}`);
             const selectedList = document.getElementById('selectedResponsibilitiesList');
 
@@ -95,10 +107,6 @@
                 selectedResponsibilities.push(id);
                 button.textContent = '✓';
 
-                // Update hidden input
-                document.getElementById('SelectedResponsibilityIds').value = selectedResponsibilities.join(',');
-
-                // Add responsibility name to the list
                 const li = document.createElement('li');
                 li.textContent = name;
                 li.id = `selected-${id}`;
@@ -108,15 +116,14 @@
                 selectedResponsibilities.splice(index, 1);
                 button.textContent = '+';
 
-                // Update hidden input
-                document.getElementById('SelectedResponsibilityIds').value = selectedResponsibilities.join(',');
-
-                // Remove responsibility name from the list
                 const li = document.getElementById(`selected-${id}`);
                 if (li) {
                     selectedList.removeChild(li);
                 }
             }
+
+            // Update hidden input value
+            document.getElementById('SelectedResponsibilityIds').value = selectedResponsibilities.join(',');
         }
     </script>
 

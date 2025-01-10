@@ -51,9 +51,8 @@ namespace MYChamp.Controller
                     /* storing the login information in static class */
                     MyChampIdentity myChampIdentity = new MyChampIdentity();
                     myChampIdentity.username = user.EmailId;
-                    myChampIdentity.LoginId=user.Id ;
-                    _httpContextAccessor.HttpContext.Session.SetString("loginId", user.Id.ToString()
-                        );
+                    myChampIdentity.LoginId= user.Id ;
+                    _httpContextAccessor.HttpContext.Session.SetString("loginId", user.Id.ToString());
                     var existingSession = _sessionHandlerController.SessionExists(user.EmailId.ToString());
                     Console.WriteLine(existingSession + "  " + login_Model.Name);
                      

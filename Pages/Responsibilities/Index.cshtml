@@ -1,0 +1,51 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Responsibilities";
+}
+
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-6">
+            <h2 class="mt-5">Responsibility</h2>
+        </div>
+
+        <div class="col-6 text-end">
+            <a asp-page="./Operational" class="btn btn-primary col-3">Add New</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Responsibility</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Responsibilities != null && Model.Responsibilities.Any())
+            {
+                foreach (var responsibility in Model.Responsibilities)
+                {
+                    <tr>
+                        <td>@responsibility.Id</td>
+                        <td>@responsibility.ResponsibilityName</td>
+                        <td>@responsibility.Description</td>
+                        <td>
+                            <a asp-page="/Responsibilities/Operation" asp-route-id="@responsibility.Id" class="btn btn-primary btn-sm">Edit</a>
+                            <a asp-page="/Responsibilities/Archive" asp-route-id="@responsibility.Id" class="btn btn-danger btn-sm ml-2">Archive</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center">No Responsibilities found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
