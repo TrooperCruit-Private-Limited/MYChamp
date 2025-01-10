@@ -12,7 +12,6 @@ namespace MYChamp.Models
         [Required]
         public string UserID { get; set; }
 
-
         [Required]
         [ForeignKey("Employee")]
         public int EmployeeId { get; set; }

@@ -2,7 +2,7 @@
 @model MYChamp.Pages.ATTENDENCE.IndexModel
 
 @{
-    ViewData["Title"] = "Attendence";
+    ViewData["Title"] = "Attendance";
 }
 <br />
 <br />
@@ -10,7 +10,7 @@
 
 <div class="wrapper">
     <header>
-        <p class="current-date">June 2024</p>
+        <p class="current-date"></p>
         <div class="icons">
             <span id="prev" class="material-symbols-rounded"><</span>
             <span id="next" class="material-symbols-rounded">></span>
@@ -27,47 +27,6 @@
             <li>Sat</li>
         </ul>
         <ul class="days">
-            <li class="inactive">26</li>
-            <li class="inactive">27</li>
-            <li class="inactive">28</li>
-            <li class="inactive">29</li>
-            <li class="inactive">30</li>
-            <li class="inactive">31</li>
-            <li>1</li>
-            <li>2</li>
-            <li>3</li>
-            <li>4</li>
-            <li>5</li>
-            <li>6</li>
-            <li>7</li>
-            <li>8</li>
-            <li>9</li>
-            <li>10</li>
-            <li>11</li>
-            <li>12</li>
-            <li>13</li>
-            <li>14</li>
-            <li>15</li>
-            <li>16</li>
-            <li>17</li>
-            <li>18</li>
-            <li>19</li>
-            <li>20</li>
-            <li>21</li>
-            <li>22</li>
-            <li>23</li>
-            <li>24</li>
-            <li>25</li>
-            <li>26</li>
-            <li>27</li>
-            <li>28</li>
-            <li>29</li>
-            <li>30</li>
-            <li>27</li>
-            <li>28</li>
-            <li>29</li>
-            <li>30</li>
-            <li class="inactive">1</li>
         </ul>
     </div>
 
@@ -76,7 +35,7 @@
         <partial name="_Notification" />
 
         <div class="form-group">
-            <input type="hidden" asp-for="Attendence.MarkedAttendence"/>
+            <input type="hidden" asp-for="Attendence.MarkedAttendence" />
             <input type="hidden" asp-for="Attendence.UserID" />
 
         </div>
@@ -107,16 +66,19 @@
                 top: 250px;
                 block-size: 200px;
             }
+
             #btnSubmit {
                 position: absolute;
                 bottom: 10px;
                 right: 10px;
             }
+
             #last-punch {
                 font-size: 12px;
                 color: #999;
                 bottom: 10px;
             }
+
             #last-punch-detail {
                 font-size: inherit;
                 color: inherit;
@@ -144,7 +106,8 @@
                 liTag += `<li class="inactive">${lastDateofLastMonth - i + 1}</li>`;
             }
             for (let i = 1; i <= lastDateofMonth; i++) {
-                let isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "active" : ""; liTag += `<li class="${isToday}">${i}</li>`;
+                let isToday = i === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "active" : "";
+                liTag += `<li class="${isToday}">${i}</li>`;
             }
             for (let i = lastDayofMonth; i < 6; i++) {
                 liTag += `<li class="inactive">${i - lastDayofMonth + 1}</li>`
@@ -167,45 +130,18 @@
             });
         });
     </script>
-    <script>
-        $(document).ready(function() {
-            $.ajax({
-                url: '/api/attendance',
-                method: 'GET',
-                success: function(data) {
-                    var events = data.map(function(record) {
-                        return {
-                            title: record.AttendanceID,
-                            start: record.DateTime,
-                            color: record.MarkedAttendence === 1 ? '#00FF00' : '#FF0000' // Green for present, red for absent
-                        };
-                    });
-                    $('#calendar').fullCalendar({
-                        events: events,
-                        eventRender: function(event, element) {
-                            if (event.color === '#00FF00') {
-                                element.css('background-color', '#00FF00');
-                            } else {
-                                element.css('background-color', '#FF0000');
-                            }
-                        }
-                    });
-                }
-            });
-        });
-    </script>
 
 </div>
 
 <style>
     * {
         margin-top: 5px;
-
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: 'Poppins', sans-serif;
     }
+
     body {
         display: flex;
         align-items: center;
@@ -214,6 +150,7 @@
         min-height: 10vh;
         background: White;
     }
+
     .wrapper {
         width: 400px;
         height: 400px;
@@ -221,72 +158,79 @@
         border-radius: 20px;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
     }
-    .wrapper header {
-        height: 15px;
-        display: flex;
-        align-items: center;
-        padding: 25px 20px 10px;
-        justify-content: space-between;
-    }
+
+        .wrapper header {
+            height: 15px;
+            display: flex;
+            align-items: center;
+            padding: 25px 20px 10px;
+            justify-content: space-between;
+        }
+
     header .icons {
         display: flex;
     }
-    header .icons span {
-        height: 38px;
-        width: 38px;
-        margin: 0 1px;
-        cursor: pointer;
-        color: #878787;
-        text-align: center;
-        line-height: 38px;
-        font-size: 1.9rem;
-        user-select: none;
-        border-radius: 50%;
-    }
-    .icons span:last-child {
-        margin-right: -10px;
-    }
-    header .icons span:hover {
-        background: White;
-    }
+
+        header .icons span {
+            height: 38px;
+            width: 38px;
+            margin: 0 1px;
+            cursor: pointer;
+            color: #878787;
+            text-align: center;
+            line-height: 38px;
+            font-size: 1.9rem;
+            user-select: none;
+            border-radius: 50%;
+        }
+
     header .current-date {
         font-size: 1.45rem;
         font-weight: 500;
     }
+
     .calendar {
         padding: 20px;
     }
-    .calendar ul {
-        height: 15px;
-        display: flex;
-        flex-wrap: wrap;
-        list-style: none;
-        text-align: center;
-    }
-    .calendar .days {
-        margin-bottom: 20px;
-    }
-    .calendar li {
-        color: White;
-        width: calc(100% / 7);
-        font-size: 1.07rem;
-    }
-    .calendar .weeks li {
-        font-weight: 500;
-        cursor: default;
-    }
-    .calendar .days li {
-        z-index: 1;
-        cursor: pointer;
-        position: relative;
-        margin-top: 20px;
-    }
+
+        .calendar ul {
+            height: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            text-align: center;
+        }
+
+        .calendar .days {
+            margin-bottom: 20px;
+        }
+
+        .calendar li {
+            color: White;
+            width: calc(100% / 7);
+            font-size: 1.07rem;
+        }
+
+        .calendar .weeks li {
+            font-weight: 500;
+            cursor: default;
+        }
+
+        .calendar .days li {
+            z-index: 1;
+            cursor: pointer;
+            position: relative;
+            margin-top: 20px;
+        }
+
     .days li.inactive {
         color: Grey;
     }
+
     .days li.active {
         color: #fff;
     }
+
     .days li::before {
         position: absolute;
         content: "";
@@ -298,13 +242,12 @@
         border-radius: 50%;
         transform: translate(-50%, -50%);
     }
+
     .days li.active::before {
         background: Green;
     }
+
     .days li:not(.active):hover::before {
         background: black;
-    }
-    .days li.current-date{
-        background: blue;
     }
 </style>
