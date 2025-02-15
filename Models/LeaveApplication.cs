@@ -8,6 +8,10 @@ namespace MYChamp.Models
     {
         [Key]
         public int Id { get; set; }
+
+        [Required]
+        public string UserID { get; set; }
+
         [Required]
         [ForeignKey("Employee")]
         public int EmployeeId { get; set; }
@@ -28,7 +32,7 @@ namespace MYChamp.Models
         [Display(Name = "Date Of Request")]
         public DateTime DateRequested { get; set; }
 
-        public int NumberOfDays { get; set; }
+        public double NumberOfDays { get; set; }
         [ValidateNever]
         public string Status { get; set; }
 
@@ -37,5 +41,11 @@ namespace MYChamp.Models
        
         [ValidateNever]
         public Employee Manager { get; set; }
+
+        public bool IsHalfDay { get; set; } // Indicates half-day leave
+
+        [ValidateNever]
+        public List<LeaveDetail> LeaveDetails { get; set; } // LeaveDetails for each leave application
+
     }
 }
