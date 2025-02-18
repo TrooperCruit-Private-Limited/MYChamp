@@ -1,0 +1,364 @@
+﻿@page
+@model MYChamp.Pages.DHolidayCalender.DIndexModel
+
+@{
+    <br/><br/>
+   
+    <div>
+        <form method="post" onsubmit="keepCalendarVisible(event)">
+            <label for="year">Year:</label>
+            <select id="year" onchange="showCalendar(this.value)">
+                @for (int i = DateTime.Now .Year; i <= DateTime.Now.Year + 5; i++)
+                {
+                    if (i == DateTime.Now.Year)
+                    {
+                        <option value="@i" selected>@i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@i</option>
+                    }
+                }
+            </select>
+
+
+            <label for="country">Country:</label>
+            <select id="country" name="country">
+                @foreach (var country in Model.Countries)
+                {
+                    <option value="@country">@country</option>
+                }
+            </select>
+            <label>
+                <input type="checkbox" id="saturdayWeekend" onchange="toggleSaturdays()" checked> Saturday is Weekend
+            </label>
+
+
+            <label for="selectedDate">Selected Date:</label>
+            <input type="text" id="selectedDate" name="selectedDate" readonly />
+
+
+
+            <button type="submit">Submit</button>
+            <div>
+                <h2>Manually Added Holidays</h2>
+                <ul id="manuallyAddedHolidays"></ul>
+            </div>
+        </form>
+    </div>
+    <div class="layout">
+
+        
+
+    <div id="calendarContainer"></div>
+
+        <div class="holiday-panel">
+            <h2>Holiday List  <span id="holidayYear"></span></h2>
+            <p><b>Total Holidays:</b> <span id="totalHolidays">0</span></p>
+            <ul id="holidayList"></ul>
+        </div>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const disabledDays = [0, 6]; 
+
+    $(document).ready(function () {
+        showCalendar(new Date().getFullYear()); 
+        $("#saturdayWeekend").change(toggleSaturdays); 
+    });
+
+    function showCalendar(year) {
+        const country = $("#country").val(); 
+        $("#calendarContainer").html(""); 
+
+        $.ajax({
+            url: `/DHolidayCalender/DIndex?handler=FetchHolidays`,
+            type: "GET",
+            data: { year: year, country: country }, 
+            dataType: "json",
+                    success: function (holidays) {
+        $("#holidayList").html("");
+        $("#totalHolidays").text(holidays.length);
+
+        holidays.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        holidays.forEach(holiday => {
+           
+            const dbDate = new Date(holiday.date);
+            const formattedDate = `${dbDate.getFullYear()}-${String(dbDate.getMonth() + 1).padStart(2, '0')}-${String(dbDate.getDate()).padStart(2, '0')}`;
+
+            $("#holidayList").append(`<li>${formattedDate}: ${holiday.name}</li>`);
+        });
+
+        generateCalendar(year, holidays);
+    },
+
+
+            error: function (error) {
+                console.error("Error fetching holidays:", error);
+            }
+        });
+    }
+
+       function generateCalendar(year, holidays) {
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const calendarContainer = $("#calendarContainer");
+        calendarContainer.html(""); 
+
+        months.forEach((month, index) => {
+            const calendar = $("<div>").addClass("calendar-month").append(`<h3>${month} ${year}</h3>`);
+            const table = $("<table>").html(`
+                <tr>
+                    <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                </tr>
+            `);
+
+            const firstDay = new Date(year, index, 1).getDay();
+            const daysInMonth = new Date(year, index + 1, 0).getDate();
+
+            let row = "<tr>";
+            for (let i = 0; i < firstDay; i++) {
+                row += "<td></td>"; // Empty cells for the first row
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, index, day);
+                const dayOfWeek = date.getDay();
+                const holidayDate = `${year}-${String(index + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+               
+                const holiday = holidays.find(h => {
+                    const dbDate = new Date(h.date);
+                    const formattedDate = `${dbDate.getFullYear()}-${String(dbDate.getMonth() + 1).padStart(2, '0')}-${String(dbDate.getDate()).padStart(2, '0')}`;
+                    return formattedDate === holidayDate;
+                });
+
+                
+                const isManualHoliday = $("#manuallyAddedHolidays li").filter(function () {
+                    return $(this).text().includes(holidayDate);
+                }).length > 0;
+
+                let cellClass = "clickable";
+                let cellClick = `onclick="selectDate('${holidayDate}')"`; 
+
+                if (disabledDays.includes(dayOfWeek)) {
+                    cellClass = "disabled";
+                    cellClick = "";
+                } else if (holiday || isManualHoliday) {
+                    cellClass = "holiday clickable";
+                }
+
+                row += `<td class="${cellClass}" data-date="${holidayDate}" ${cellClick}>${day}</td>`;
+
+                if ((day + firstDay) % 7 === 0 || day === daysInMonth) {
+                    row += "</tr>";
+                    table.append(row);
+                    row = "<tr>";
+                }
+            }
+
+           
+            let totalRows = table.find("tr").length - 1;
+            while (totalRows < 6) {
+                let emptyRow = "<tr>";
+                for (let i = 0; i < 7; i++) {
+                    emptyRow += "<td></td>";
+                }
+                emptyRow += "</tr>";
+                table.append(emptyRow);
+                totalRows++;
+            }
+
+            calendar.append(table);
+            calendarContainer.append(calendar);
+        });
+    }
+
+
+        
+     
+
+
+    function toggleSaturdays() {
+        const saturdayWeekend = $("#saturdayWeekend").prop("checked");
+        $(".calendar-month td").each(function () {
+            if ($(this).text().trim() !== "") {
+                const date = new Date($(this).data("date"));
+                if (date.getDay() === 6) { 
+                    if (saturdayWeekend) {
+                        $(this).addClass("disabled").removeClass("clickable").off("click");
+                    } else {
+                        $(this).removeClass("disabled").addClass("clickable").on("click", function () {
+                            selectDate($(this).data("date"));
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+          function selectDate(date) {
+        let holidayName = prompt("Enter holiday name for " + date + ":");
+        if (!holidayName) return; 
+
+         
+    $("#selectedDate").val(date);
+
+        const manuallyAddedHolidays = $("#manuallyAddedHolidays");
+
+       
+        let existingHoliday = manuallyAddedHolidays.find(`li[data-date='${date}']`);
+        if (existingHoliday.length > 0) {
+            existingHoliday.text(`${date}: ${holidayName}`);
+        } else {
+            manuallyAddedHolidays.append(`<li data-date="${date}">${date}: ${holidayName}</li>`);
+        }
+
+       
+        const holidayList = $("#holidayList");
+        let existingHolidayInList = holidayList.find(`li[data-date='${date}']`);
+        if (existingHolidayInList.length > 0) {
+            existingHolidayInList.text(`${date}: ${holidayName}`);
+        } else {
+            holidayList.append(`<li data-date="${date}">${date}: ${holidayName}</li>`);
+        }
+
+      
+        let totalHolidays = $("#holidayList li").length;
+        $("#totalHolidays").text(totalHolidays);
+
+        
+        updateCalendarHighlight(date);
+    }
+
+
+
+         function updateCalendarHighlight(selectedDate) {
+        $(".calendar-month td").each(function () {
+            if ($(this).data("date") === selectedDate) {
+                $(this).addClass("holiday").removeClass("clickable");
+            }
+        });
+    }
+
+
+           function keepCalendarVisible(event) {
+        event.preventDefault(); 
+
+         $("#selectedDate").val("");
+
+    alert("Form submitted! Calendar remains visible.");
+
+    }
+
+
+
+
+</script>
+
+
+  
+
+
+    <style>
+        
+        .layout {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            justify-content: space-between; 
+            align-items: flex-start; 
+        }
+        #calendarContainer {
+            display: flex;
+            flex:3;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+    .calendar-month h3 {
+
+        background-color: #003366; 
+        color: white;
+        text-align: center;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .calendar-month table {
+        width: calc(100% / 3); 
+        min-height: 280px; 
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 250px;
+            text-align: center;
+        background-color: #d0e7ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
+           background-color: #d0e7ff; 
+        }
+
+    .disabled {
+        color: gray;
+        pointer-events: none;
+        text-decoration: line-through;
+        background-color: #d0e7ff !important; 
+    }
+
+    .clickable {
+        cursor: pointer;
+        color: blue;
+    }
+
+    .holiday {
+        background-color: #ffeb3b !important;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+
+        .clickable:hover {
+            background-color: #e0e0e0;
+        }
+
+
+    .holiday-panel {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #007bff; 
+        color: white;
+        max-width: 300px;
+    }
+            .holiday-panel h2 {
+                text-align: center;
+            }
+
+            .holiday-panel ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+                .holiday-panel ul li {
+                    padding: 5px 0;
+                }
+    </style>
+
+
+
+
+
+

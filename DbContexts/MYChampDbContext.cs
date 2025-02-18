@@ -16,6 +16,9 @@ namespace MYChamp.DbContexts
         public DbSet<Position> Positions { get; set; }
         public DbSet<LeaveApplication> LeaveApplications { get; set; }
         public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<CDHioliday> Holiday { get; set; }
+        public DbSet<DHolidays> Holidays { get; set; }
         public MYChampDbContext(DbContextOptions<MYChampDbContext> options) : base(options)
         {
         }

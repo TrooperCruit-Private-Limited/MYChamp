@@ -1,0 +1,326 @@
+﻿@page
+
+@model MYChamp.Pages.HolidayCalender.IndexModel
+
+
+<style>
+    .table-responsive {
+        max-height: 300px; 
+        overflow-y: auto;
+        border: 1px solid #ccc; 
+    }
+
+     #savedHolidaysTable th {
+        background-color: #808080; 
+        color: white; 
+    }
+
+    #savedHolidaysTable th {
+        font-weight: bold;
+    }
+</style>
+
+
+<br />
+@{
+    
+
+<form method="post" class="container-fluid col-lg-10">
+        @Html.AntiForgeryToken()
+    <h2 class="mb-4">Add Holidays</h2>
+        <input type="hidden" id="editHolidayId" name="EditHolidayId" value="">
+       
+    <div class="table-responsive">
+        <table class="table table-bordered" id="holidayTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Holiday Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Holidays.Count; i++)
+                {
+                    <tr>
+                            <td>
+                                <input type="date" class="form-control holiday-date" asp-for="Holidays[@i].HolidayDate" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" asp-for="Holidays[@i].HolidayName" placeholder="Holiday Name" required />
+                            </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-success add-row">+</button>
+                            <button type="button" class="btn btn-danger remove-row">-</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Submit Holidays</button>
+    </div>
+
+
+
+        <h3>Saved Holidays</h3>
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-bordered" id="savedHolidaysTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Holiday Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var holiday in Model.SavedHolidays)
+                    {
+                        <tr data-id="@holiday.Id">
+                            <td>@holiday.HolidayDate.ToString("yyyy-MM-dd")</td>
+                            <td>@holiday.HolidayName</td>
+                            <td>
+                                <a asp-page="./Edit" asp-route-id="@holiday.Id" class="btn btn-primary btn-sm">Edit</a>
+
+
+
+
+                                <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModal(@holiday.Id)">Delete</button>
+
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmationLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this holiday?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+  </form>
+}
+
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const holidayTable = document.getElementById('holidayTable');
+        const tbody = holidayTable.querySelector('tbody');
+        const form = document.querySelector('form');
+        const savedHolidaysTable = document.getElementById('savedHolidaysTable').querySelector('tbody');
+        const editHolidayIdField = document.getElementById('editHolidayId');
+
+        tbody.addEventListener('click', function (event) {
+            if (event.target.classList.contains('add-row')) {
+                const newRow = event.target.closest('tr').cloneNode(true);
+                newRow.querySelectorAll('input').forEach(input => input.value = '');
+                tbody.appendChild(newRow);
+
+                
+                Array.from(tbody.rows).forEach((row, rowIndex) => {
+                    row.querySelectorAll('input').forEach((input) => {
+                        const nameAttr = input.getAttribute('name');
+                        if (nameAttr) {
+                            const newName = nameAttr.replace(/\[\d+\]/, `[${rowIndex}]`);
+                            input.setAttribute('name', newName);
+                        }
+                    });
+                });
+            }
+
+            if (event.target.classList.contains('remove-row')) {
+                if (tbody.rows.length > 1) {
+                    event.target.closest('tr').remove();
+                    Array.from(tbody.rows).forEach((row, rowIndex) => {
+                        row.querySelectorAll('input').forEach((input) => {
+                            const nameAttr = input.getAttribute('name');
+                            if (nameAttr) {
+                                const newName = nameAttr.replace(/\[\d+\]/, `[${rowIndex}]`);
+                                input.setAttribute('name', newName);
+                            }
+                        });
+                    });
+                } else {
+                    alert('At least one row must remain.');
+                }
+            }
+        });
+
+        holidayTable.addEventListener('change', function (event) {
+            if (event.target.classList.contains('holiday-date')) {
+                const selectedDate = event.target.value;
+                const allDates = Array.from(holidayTable.querySelectorAll('.holiday-date'))
+                    .map(input => input.value);
+
+                if (allDates.filter(date => date === selectedDate).length > 1) {
+                    alert('Duplicate dates are not allowed.');
+                    event.target.value = ''; 
+                    event.target.focus(); 
+                }
+            }
+        });
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const result = await response.json();
+                if (result.success) {
+                    result.added.forEach(holiday => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `<td>${holiday.holidayDate}</td><td>${holiday.holidayName}</td>
+                      <td>
+                        <!-- Add Edit and Delete buttons dynamically -->
+                        <a href="./Edit?id=${holiday.holidayId}" class="btn btn-primary btn-sm">Edit</a>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModal(${holiday.holidayId})">Delete</button>
+                    </td>`;
+                        savedHolidaysTable.appendChild(newRow);
+                    });
+                    alert(result.duplicates?.length > 0
+                        ? `These holidays were not added due to duplication: ${result.duplicates.join(", ")}`
+                        : 'Holidays added successfully!');
+
+                   
+                    tbody.querySelectorAll('input').forEach(input => input.value = '');
+                } else {
+                    alert(result.message || 'An error occurred.');
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                alert('Error submitting the form.');
+            }
+        });
+    });
+
+
+
+
+
+
+
+
+
+
+
+    //     async function deleteHoliday(holidayId) {
+    //     if (!confirm("Are you sure you want to delete this holiday?")) {
+    //         return; 
+    //     }
+
+    //     try {
+            
+    //         const response = await fetch('/HolidayCalender/Index?handler=DeleteHoliday', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+    //             },
+    //             body: JSON.stringify({ holidayId: holidayId })
+    //         });
+
+    //         const result = await response.json();
+
+    //         if (result.success) {
+              
+    //             const rowToDelete = document.querySelector(`tr[data-id='${holidayId}']`);
+    //             if (rowToDelete) {
+    //                 rowToDelete.remove();
+    //             }
+
+    //             alert(result.message);
+    //         } else {
+    //             alert(result.message || "Failed to delete the holiday.");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error deleting holiday:", error);
+    //         alert("An error occurred while trying to delete the holiday.");
+    //     }
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let holidayToDeleteId = null;
+
+        // Function to open the modal and set the holiday ID
+        window.openDeleteModal = function (holidayId) {
+            holidayToDeleteId = holidayId; // Store the ID of the holiday to delete
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+            deleteModal.show(); // Show the modal
+        };
+
+        // Handle delete confirmation button click
+        document.getElementById('confirmDeleteButton').addEventListener('click', async function () {
+            if (!holidayToDeleteId) return;
+
+            try {
+                // Perform DELETE request
+                const response = await fetch('/HolidayCalender/Index?handler=DeleteHoliday', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ holidayId: holidayToDeleteId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove the holiday row from the table
+                    const rowToDelete = document.querySelector(`tr[data-id="${holidayToDeleteId}"]`);
+                    if (rowToDelete) rowToDelete.remove();
+
+                    // Optionally, refresh saved holidays or update the UI
+                    console.log('Holiday deleted successfully:', result.message);
+                } else {
+                    console.error('Failed to delete holiday:', result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting holiday:', error);
+            }
+
+            holidayToDeleteId = null; // Reset the ID
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+            deleteModal.hide(); // Hide the modal
+        });
+    });
+
+
+          
+
+
+</script>
+
+
