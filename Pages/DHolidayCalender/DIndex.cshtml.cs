@@ -32,7 +32,7 @@ namespace MYChamp.Pages.DHolidayCalender
             int currentYear = DateTime.Now.Year;
             string defaultCountry = "India";
 
-            InsertDefaultHolidays(new List<int> { 2026, 2027, 2028, 2029 });
+            InsertDefaultHolidays(new List<int> {2025, 2026, 2027, 2028, 2029 });
 
             Holidays = GetHolidaysForYearAndCountry(currentYear, defaultCountry);
         }
