@@ -49,15 +49,31 @@
     <div class="layout">
 
         
-
+    
     <div id="calendarContainer"></div>
+    
+            <div class="holiday-panel">
+            
+                <h2>Holiday List  <span id="holidayYear"></span></h2>
+                <p><b>Total Holidays:</b> <span id="totalHolidays">0</span></p>
+            <table id="holidayTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Holiday Name</th>
+                    </tr>
+                </thead>
+                <tbody id="holidayList">
+                    <!-- Holidays will be added here dynamically -->
+                </tbody>
+            </table>
 
-        <div class="holiday-panel">
-            <h2>Holiday List  <span id="holidayYear"></span></h2>
-            <p><b>Total Holidays:</b> <span id="totalHolidays">0</span></p>
-            <ul id="holidayList"></ul>
-        </div>
+           
+            </div>
+    
+        
     </div>
+    
 }
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -89,7 +105,13 @@
             const dbDate = new Date(holiday.date);
             const formattedDate = `${dbDate.getFullYear()}-${String(dbDate.getMonth() + 1).padStart(2, '0')}-${String(dbDate.getDate()).padStart(2, '0')}`;
 
-            $("#holidayList").append(`<li>${formattedDate}: ${holiday.name}</li>`);
+               $("#holidayList").append(`
+        <tr>
+            <td>${formattedDate}</td>
+            <td>${holiday.name}</td>
+        </tr>
+    `);
+
         });
 
         generateCalendar(year, holidays);
@@ -199,39 +221,29 @@
         });
     }
 
-          function selectDate(date) {
+    function selectDate(date) {
         let holidayName = prompt("Enter holiday name for " + date + ":");
-        if (!holidayName) return; 
+        if (!holidayName) return;
 
-         
-    $("#selectedDate").val(date);
+        // Set selected date input value
+        $("#selectedDate").val(date);
 
-        const manuallyAddedHolidays = $("#manuallyAddedHolidays");
+        // Append the manually added holiday to the holiday table
+        $("#holidayList").append(`
+            <tr class="holiday-row">
+                <td>${date}</td>
+                <td>${holidayName}</td>
+            </tr>
+        `);
 
-       
-        let existingHoliday = manuallyAddedHolidays.find(`li[data-date='${date}']`);
-        if (existingHoliday.length > 0) {
-            existingHoliday.text(`${date}: ${holidayName}`);
-        } else {
-            manuallyAddedHolidays.append(`<li data-date="${date}">${date}: ${holidayName}</li>`);
-        }
-
-       
-        const holidayList = $("#holidayList");
-        let existingHolidayInList = holidayList.find(`li[data-date='${date}']`);
-        if (existingHolidayInList.length > 0) {
-            existingHolidayInList.text(`${date}: ${holidayName}`);
-        } else {
-            holidayList.append(`<li data-date="${date}">${date}: ${holidayName}</li>`);
-        }
-
-      
-        let totalHolidays = $("#holidayList li").length;
+        // Update total holidays count
+        let totalHolidays = $("#holidayList tr").length;
         $("#totalHolidays").text(totalHolidays);
 
-        
+        // Highlight the selected date in the calendar
         updateCalendarHighlight(date);
     }
+
 
 
 
@@ -334,27 +346,73 @@
         }
 
 
+
+
+
+
     .holiday-panel {
         flex: 1;
         border: 1px solid #ccc;
-        padding: 10px;
+        padding: 15px;
         border-radius: 8px;
-        background-color: #007bff; 
-        color: white;
-        max-width: 300px;
+        background-color: #f8f9fa; 
+        color: #333; 
+        max-width: 340px; 
+        min-width: 290px; 
     }
-            .holiday-panel h2 {
-                text-align: center;
-            }
 
-            .holiday-panel ul {
-                list-style-type: none;
-                padding: 0;
-            }
+        .holiday-panel h2 {
+            text-align: center;
+            background-color: #007bff; 
+            color: white;
+            padding: 0px;
+            border-radius: 5px;
+        }
 
-                .holiday-panel ul li {
-                    padding: 5px 0;
-                }
+        .holiday-panel p {
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .holiday-panel table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: white;
+        }
+
+        .holiday-panel th, .holiday-panel td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            color: black;
+        }
+
+        .holiday-panel th {
+            background-color: #003366;
+            color: white;
+        }
+
+        .holiday-panel tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+       
+        .holiday-panel tr.holiday-row {
+            background-color: #007bff !important;
+            color: #333 !important;
+            font-weight: bold;
+        }
+
+   
+    #holidayTable {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+
+
     </style>
 
 
