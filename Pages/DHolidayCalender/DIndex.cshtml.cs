@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MYChamp.DbContexts;
 using MYChamp.Models;
+using System.Text.Json;
 
 namespace MYChamp.Pages.DHolidayCalender
 {
@@ -24,7 +25,7 @@ namespace MYChamp.Pages.DHolidayCalender
        
 
 
-        public List<CDHioliday> Holidays { get; set; } = new List<CDHioliday>(); 
+        public List<CDHoliday> Holidays { get; set; } = new List<CDHoliday>(); 
 
         public void OnGet()
         {
@@ -42,13 +43,13 @@ namespace MYChamp.Pages.DHolidayCalender
             var existingHolidayCount = _context.Holiday.Count(); 
             if (existingHolidayCount > 0) return; 
 
-            var holidays = new List<CDHioliday>();
+            var holidays = new List<CDHoliday>();
 
             foreach (var year in years)
             {
-                holidays.Add(new CDHioliday { Date = new DateTime(year, 1, 1), Name = "New Year's Day", Country = "India" });
-                holidays.Add(new CDHioliday { Date = new DateTime(year, 1, 26), Name = "Republic Day", Country = "India" });
-                holidays.Add(new CDHioliday { Date = new DateTime(year, 8, 15), Name = "Independence Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = new DateTime(year, 1, 1), Name = "New Year's Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = new DateTime(year, 1, 26), Name = "Republic Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = new DateTime(year, 8, 15), Name = "Independence Day", Country = "India" });
             }
 
             _context.Holiday.AddRange(holidays);
@@ -61,7 +62,7 @@ namespace MYChamp.Pages.DHolidayCalender
             if (string.IsNullOrWhiteSpace(country) || year <= 0)
             {
                 Console.WriteLine("Invalid year or country input.");
-                return new JsonResult(new List<CDHioliday>());
+                return new JsonResult(new List<CDHoliday>());
             }
 
             var holidays = GetHolidaysForYearAndCountry(year, country);
@@ -73,11 +74,48 @@ namespace MYChamp.Pages.DHolidayCalender
 
        
 
-        private List<CDHioliday> GetHolidaysForYearAndCountry(int year, string country)
+        private List<CDHoliday> GetHolidaysForYearAndCountry(int year, string country)
         {
             return _context.Holiday
                 .Where(h => h.Date.Year == year && h.Country == country)
                 .ToList();
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult OnPostAddHoliday([FromBody] List<CDHoliday> holidays)
+        {
+            if (holidays == null || !holidays.Any())
+            {
+                return BadRequest(new { success = false, message = "No holiday data received" });
+            }
+
+            try
+            {
+                
+                foreach (var holiday in holidays)
+                {
+                    holiday.Date = DateTime.SpecifyKind(holiday.Date, DateTimeKind.Utc);
+                }
+
+                _context.Holiday.AddRange(holidays);
+                int recordsSaved = _context.SaveChanges();
+                return new JsonResult(new { success = true, message = "Holidays added successfully!" });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                
+                Console.WriteLine($"❌ Database update error: {dbEx.InnerException?.Message ?? dbEx.Message}");
+                return StatusCode(500, new { success = false, message = "Database error", error = dbEx.InnerException?.Message ?? dbEx.Message });
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"❌ An unexpected error occurred: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "An unexpected error occurred", error = ex.Message });
+            }
         }
 
 

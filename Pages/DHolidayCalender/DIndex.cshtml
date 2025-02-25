@@ -5,22 +5,15 @@
     <br/><br/>
    
     <div>
-        <form method="post" onsubmit="keepCalendarVisible(event)">
+        <form method="post" onsubmit="submitHolidays(event)">
+            @Html.AntiForgeryToken()
             <label for="year">Year:</label>
             <select id="year" onchange="showCalendar(this.value)">
-                @for (int i = DateTime.Now .Year; i <= DateTime.Now.Year + 5; i++)
+                @for (int i = DateTime.Now.Year; i <= DateTime.Now.Year + 5; i++)
                 {
-                    if (i == DateTime.Now.Year)
-                    {
-                        <option value="@i" selected>@i</option>
-                    }
-                    else
-                    {
-                        <option value="@i">@i</option>
-                    }
+                    <option value="@i" selected="@(i == DateTime.Now.Year)">@i</option>
                 }
             </select>
-
 
             <label for="country">Country:</label>
             <select id="country" name="country">
@@ -29,22 +22,24 @@
                     <option value="@country">@country</option>
                 }
             </select>
+
             <label>
                 <input type="checkbox" id="saturdayWeekend" onchange="toggleSaturdays()" checked> Saturday is Weekend
             </label>
 
-
             <label for="selectedDate">Selected Date:</label>
             <input type="text" id="selectedDate" name="selectedDate" readonly />
 
+            <!-- Hidden input to store selected holidays -->
+            <input type="hidden" id="holidayData" name="holidayData" value="[]" />
+
+            <button type="submit" id="submitHolidays">Submit</button>
 
 
-            <button type="submit">Submit</button>
-            <div>
-                <h2>Manually Added Holidays</h2>
-                <ul id="manuallyAddedHolidays"></ul>
-            </div>
+           
         </form>
+
+
     </div>
     <div class="layout">
 
@@ -112,7 +107,7 @@
         </tr>
     `);
 
-        });
+    });
 
         generateCalendar(year, holidays);
     },
@@ -123,6 +118,9 @@
             }
         });
     }
+
+
+
 
        function generateCalendar(year, holidays) {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -221,28 +219,115 @@
         });
     }
 
-    function selectDate(date) {
+
+
+
+
+       function selectDate(date) {
+        console.log("Selected Date:", date); 
+
         let holidayName = prompt("Enter holiday name for " + date + ":");
         if (!holidayName) return;
 
-        // Set selected date input value
-        $("#selectedDate").val(date);
+        let country = $("#country").val();
 
-        // Append the manually added holiday to the holiday table
-        $("#holidayList").append(`
-            <tr class="holiday-row">
-                <td>${date}</td>
-                <td>${holidayName}</td>
-            </tr>
-        `);
+        $("#selectedDate").val(date); 
 
-        // Update total holidays count
-        let totalHolidays = $("#holidayList tr").length;
-        $("#totalHolidays").text(totalHolidays);
+       
+        let holidaysArray = $("#holidayData").val() ? JSON.parse($("#holidayData").val()) : [];
+        holidaysArray.push({ Date: date, Name: holidayName, Country: country });
+        $("#holidayData").val(JSON.stringify(holidaysArray)); 
 
-        // Highlight the selected date in the calendar
+        console.log("Updated Holiday Data:", holidaysArray);
+
+        
+        $("#manuallyAddedHolidays").append(`<li data-date="${date}">${date} - ${holidayName}</li>`);
         updateCalendarHighlight(date);
     }
+
+
+
+        $("#selectedDate").on("change", function () {
+        selectedDate = $(this).val();
+        console.log("Date Selected:", selectedDate);
+    });
+
+
+        $("#confirmHoliday").on("click", function () {
+        let holidayName = $("#holidayName").val();
+        let country = $("#holidayCountry").val();
+
+        if (!$("#selectedDate").val() || !holidayName) {
+            alert("Please select a date and enter a holiday name!");
+            return;
+        }
+
+        let newHoliday = {
+            Date: $("#selectedDate").val(),
+            Name: holidayName,
+            Country: country
+        };
+
+        
+        let holidaysArray = $("#holidayData").val() ? JSON.parse($("#holidayData").val()) : [];
+        holidaysArray.push(newHoliday);
+        $("#holidayData").val(JSON.stringify(holidaysArray)); 
+
+        console.log("Holiday Added:", newHoliday);
+
+        alert("Holiday added: " + newHoliday.Date + " - " + holidayName);
+    });
+
+
+
+          $(document).ready(function () {
+        $("#submitHolidays").on("click", function (event) {
+            event.preventDefault();
+
+            let holidayData = $("#holidayData").val().trim();
+            if (!holidayData || holidayData === "[]") {
+                alert("Please select at least one holiday.");
+                return;
+            }
+
+            let holidaysArray = JSON.parse(holidayData);
+
+            // Retrieve the anti-forgery token
+            let antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: "/DHolidayCalender/DIndex?handler=AddHoliday",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(holidaysArray),
+                headers: {
+                    "RequestVerificationToken": antiForgeryToken
+                },
+                success: function (response) {
+                    alert("Holiday(s) added successfully!");
+                    location.reload();
+                },
+                error: function (xhr) {
+                    alert("Error: " + xhr.status + " - " + xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
