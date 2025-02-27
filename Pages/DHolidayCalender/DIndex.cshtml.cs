@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MYChamp.DbContexts;
 using MYChamp.Models;
+using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace MYChamp.Pages.DHolidayCalender
@@ -115,6 +116,53 @@ namespace MYChamp.Pages.DHolidayCalender
                 
                 Console.WriteLine($"❌ An unexpected error occurred: {ex.Message}");
                 return StatusCode(500, new { success = false, message = "An unexpected error occurred", error = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteHoliday([FromBody] JsonElement jsonData)
+        {
+            try
+            {
+               
+                string dateString = jsonData.GetProperty("Date").GetString();
+                string country = jsonData.GetProperty("Country").GetString();
+                string name = jsonData.GetProperty("Name").GetString();
+
+                if (string.IsNullOrEmpty(dateString) || string.IsNullOrEmpty(country) || string.IsNullOrEmpty(name))
+                {
+                    Console.WriteLine($"❌ Invalid request received! Missing data.");
+                    return BadRequest(new { success = false, message = "Invalid holiday data. Date, Country, and Name are required!" });
+                }
+
+                DateTime holidayDate;
+                if (!DateTime.TryParse(dateString, out holidayDate))
+                {
+                    Console.WriteLine("❌ Error: Invalid Date format received.");
+                    return BadRequest(new { success = false, message = "Invalid date format!" });
+                }
+
+                holidayDate = DateTime.SpecifyKind(holidayDate.Date, DateTimeKind.Utc);
+
+                Console.WriteLine($"🔍 Debug: Deleting Holiday - Date: {holidayDate}, Country: {country}, Name: {name}");
+
+                var holidayToDelete = await _context.Holiday
+                    .FirstOrDefaultAsync(h => h.Date.Date == holidayDate.Date && h.Country == country && h.Name == name);
+
+                if (holidayToDelete != null)
+                {
+                    _context.Holiday.Remove(holidayToDelete);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("✅ Holiday deleted successfully!");
+                    return new JsonResult(new { success = true, message = "Holiday deleted successfully" });
+                }
+
+                Console.WriteLine("❌ Holiday not found in the database!");
+                return new JsonResult(new { success = false, message = "Holiday not found in the database!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error deleting holiday: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting the holiday.", error = ex.Message });
             }
         }
 

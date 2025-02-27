@@ -30,7 +30,7 @@
             <label for="selectedDate">Selected Date:</label>
             <input type="text" id="selectedDate" name="selectedDate" readonly />
 
-            <!-- Hidden input to store selected holidays -->
+            
             <input type="hidden" id="holidayData" name="holidayData" value="[]" />
 
             <button type="submit" id="submitHolidays">Submit</button>
@@ -56,10 +56,11 @@
                     <tr>
                         <th>Date</th>
                         <th>Holiday Name</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="holidayList">
-                    <!-- Holidays will be added here dynamically -->
+                    
                 </tbody>
             </table>
 
@@ -104,6 +105,7 @@
         <tr>
             <td>${formattedDate}</td>
             <td>${holiday.name}</td>
+                 <td><button onclick="deleteHoliday('${formattedDate}')">Delete</button></td>
         </tr>
     `);
 
@@ -314,6 +316,69 @@
             });
         });
     });
+
+
+
+
+
+                                function deleteHoliday(date) {
+        if (!confirm(`Are you sure you want to delete the holiday on ${date}?`)) {
+            return;
+        }
+
+        let country = $("#country").val();
+        let holidayRow = $(`#holidayList tr`).filter(function () {
+            return $(this).find("td:first").text().trim() === date;
+        });
+
+        let holidayName = holidayRow.find("td:nth-child(2)").text().trim();
+        if (!holidayName) {
+            alert("Error: Holiday name not found! Please check the table.");
+            return;
+        }
+
+        // Convert date to ISO format (yyyy-MM-dd)
+        const formattedDate = new Date(date).toISOString().split("T")[0];
+
+        // Get CSRF token for security
+        let token = $('input[name="__RequestVerificationToken"]').val();
+
+        console.log("🛠 Sending Payload:", JSON.stringify({
+            Date: formattedDate,
+            Country: country,
+            Name: holidayName
+        }));
+
+        $.ajax({
+            url: "/DHolidayCalender/DIndex?handler=DeleteHoliday",
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            headers: { "RequestVerificationToken": token },  // CSRF protection
+            data: JSON.stringify({
+                Date: formattedDate,
+                Country: country,
+                Name: holidayName
+            }),
+            success: function (response) {
+                if (response.success) {
+                    holidayRow.remove();
+                    alert("✅ Holiday deleted successfully!");
+                } else {
+                    alert("❌ Failed to delete the holiday: " + response.message);
+                }
+            },
+            error: function (xhr) {
+                console.error("❌ Error:", xhr.status, xhr.responseText);
+                alert("❌ Error: " + xhr.status + " - " + xhr.responseText);
+            }
+        });
+    }
+
+
+
+
+
 
 
 
