@@ -1,0 +1,49 @@
+﻿@page
+@model MYChamp.Pages.Slot.SlotBookingModel
+@{
+    ViewData["Title"] = "Slot Booking";
+}
+
+<h2>Slot Booking</h2>
+
+<!-- Employee Details -->
+<div>
+    <p><strong>Name:</strong> @Model.Employee.Name</p>
+    <p><strong>Email:</strong> @Model.Employee.Email</p>
+    <p><strong>Phone:</strong> @Model.Employee.Phone</p>
+    <p><strong>Date:</strong> @Model.Employee.SlotDate.ToShortDateString()</p>
+</div>
+
+<!-- Available Slots -->
+<h3>Available Slots</h3>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    @foreach (var slot in Model.AvailableSlots)
+    {
+        <form method="post">
+            <input type="hidden" name="EmployeeId" value="@Model.Employee.Id" />
+            <input type="hidden" name="SlotDate" value="@Model.SlotDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="StartTime" value="@slot.StartTime" />
+            <input type="hidden" name="EndTime" value="@slot.EndTime" />
+
+            <div style="width: 120px; padding: 10px; text-align: center; border-radius: 5px;
+                        background-color: @(slot.IsBooked ? "#ffcccc" : "#ccffcc");
+                        border: 1px solid #333;">
+                <p style="margin: 0; font-size: 14px;">@slot.StartTime - @slot.EndTime</p>
+                <button type="submit" class="btn @(slot.IsBooked ? "btn-danger" : "btn-success")"
+                @(slot.IsBooked ? "disabled" : "")>
+                    @(slot.IsBooked ? "Booked" : "Book")
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+<!-- Success Message -->
+@if (Model.IsBookingSuccessful)
+{
+    <div id="successPopup" style="position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); background-color: #28a745; color: white;
+        padding: 15px; border-radius: 5px;">
+        Slot booked successfully!
+    </div>
+}

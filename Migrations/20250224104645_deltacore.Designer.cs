@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MYChamp.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MYChamp.Migrations
 {
     [DbContext(typeof(MYChampDbContext))]
-    partial class MYChampDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250224104645_deltacore")]
+    partial class deltacore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -771,7 +774,6 @@ namespace MYChamp.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("BookedByEmail")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("BookedByPhone")

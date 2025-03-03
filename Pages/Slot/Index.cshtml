@@ -1,0 +1,151 @@
+﻿@page
+@model MYChamp.Pages.Slot.IndexModel
+@{
+    var loggedInUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Slot Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .small-text td {
+            font-size: 14px;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #search {
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Employee Slot Management</h1>
+
+        <div class="top-controls mb-3">
+            <a href="/Slot/AddEmployee" class="btn btn-primary">Add Slot</a>
+            <input type="text" id="search" placeholder="Search employees..." class="form-control" />
+        </div>
+
+        <div class="table-container">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th> <!-- ✅ Only ID column -->
+                        <th>Name</th>
+                        <th>Domain</th>
+                        <th>Date</th>
+                        <th>Email</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    @if (Model.Employees != null && Model.Employees.Any())
+                    {
+                        foreach (var employee in Model.Employees)
+                        {
+                            <tr class="small-text">
+                                <td>@employee.Id</td> <!-- ✅ Displaying Employee ID -->
+                                <td>@employee.Name</td>
+                                <td>@employee.JobTitle</td>
+                                <td>@employee.SlotDate.ToString("yyyy-MM-dd")</td>
+                                <td>@employee.Email</td>
+                                <td>@employee.SlotStart.ToString(@"hh\:mm")</td>
+                                <td>@employee.SlotEnd.ToString(@"hh\:mm")</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        @if (loggedInUserEmail != employee.Email)
+                                        {
+                                            <form method="get" asp-page="/Slot/SlotBooking">
+
+                                                <input type="hidden" name="employeeId" value="@employee.Id" />
+                                                <input type="hidden" name="name" value="@employee.Name" />
+                                                <input type="hidden" name="jobTitle" value="@employee.JobTitle" />
+                                                <input type="hidden" name="email" value="@employee.Email" />
+                                                <input type="hidden" name="slotStart" value="@employee.SlotStart.ToString(@"hh\:mm")" />
+                                                <input type="hidden" name="slotEnd" value="@employee.SlotEnd.ToString(@"hh\:mm")" />
+                                                <button type="submit" class="btn btn-success btn-sm">Book</button>
+                                            </form>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="/Slot/AddEmployee?id=@employee.Id" class="btn btn-warning btn-sm">Edit</a>
+                                            <button class="btn btn-danger btn-sm delete-btn" data-id="@employee.Id">Delete</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center">No employees found.</td>
+                        </tr>
+                    }
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#search").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#employeeTableBody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Attach event to dynamically loaded elements
+            $(document).on("click", ".delete-btn", function () {
+                let employeeId = $(this).data("id");
+                let row = $(this).closest("tr"); // Get the row to remove
+
+                if (confirm("Are you sure you want to delete this slot?")) {
+                    $.ajax({
+                        url: "?handler=DeleteSlot",
+                        type: "POST",
+                        data: { id: employeeId },
+                        success: function (response) {
+                            if (response.success) {
+                                alert("Slot deleted successfully!");
+                                row.remove(); // Remove row without page reload
+                            } else {
+                                alert("Failed to delete: " + response.message);
+                            }
+                        },
+                        error: function () {
+                            alert("Error while deleting.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

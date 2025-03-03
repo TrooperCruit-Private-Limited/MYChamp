@@ -26,85 +26,93 @@
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body> 
+<body>
     @if (!(ViewData["Title"]?.ToString().Contains("Create") == true ||
     ViewData["Title"]?.ToString().Contains("Edit") == true))
     {
-    <nav id="mainNav" class="navbar navbar-expand-xl fixed-top shadow">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="@Url.Content("~/Index")">
-                <img src="~/images/TC.webp" style="width:50px;" />
-                @await Component.InvokeAsync("TitleText")
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#solutionLayoutNavItems" aria-controls="solutionLayoutNavItems" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse justify-content-md-end me-3" id="solutionLayoutNavItems">
-                <ul class="navbar-nav mr-auto">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        var user = await UserManager.GetUserAsync(User);
-                        var data = db.registerModel.FirstOrDefault(d => d.EmailId == user.Email);
-                        if (data != null && data.JobTitle == "HR")
+        <nav id="mainNav" class="navbar navbar-expand-xl fixed-top shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="@Url.Content("~/Index")">
+                    <img src="~/images/TC.webp" style="width:50px;" />
+                    @await Component.InvokeAsync("TitleText")
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#solutionLayoutNavItems" aria-controls="solutionLayoutNavItems" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse justify-content-md-end me-3" id="solutionLayoutNavItems">
+                    <ul class="navbar-nav mr-auto">
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Employees/Index">Employees</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Managers/ReviewRequest">Leave Requests</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Leaves/Index">Leaves</a>
-                            </li>
+                            var user = await UserManager.GetUserAsync(User);
+                            var data = db.registerModel.FirstOrDefault(d => d.EmailId == user.Email);
+                            if (data != null && data.JobTitle == "HR")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Employees/Index">Employees</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Slot/Index">Slots</a>
+                                </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Positions/Index">Position</a>
-                            </li>
-                            <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-page="/Responsibilities/Index">Responsibility</a>
-                            </li>
-                            <li class="nav-item">
-                                    <a id="logout" class="nav-link text-danger fw-bold " asp-page="Authentication/Logout" role="button"><h4>Logout</h4></a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Employees/Index">My Profile</a>
-                            </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Managers/ReviewRequest">Leave Requests</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Leaves/Index">Leaves</a>
+                                </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Leaves/ApplyLeave">Apply Leave</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Managers/ReviewRequest">Leave Requests</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Leaves/Index">My Leaves</a>
-                            </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Positions/Index">Position</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-page="/Responsibilities/Index">Responsibility</a>
                                 </li>
-                            <li class="nav-item">
+                                <li class="nav-item">
                                     <a id="logout" class="nav-link text-danger fw-bold " asp-page="Authentication/Logout" role="button"><h4>Logout</h4></a>
+                                </li>
+
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Employees/Index">My Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Slot/Index">SlotBooking</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Leaves/ApplyLeave">Apply Leave</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Managers/ReviewRequest">Leave Requests</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Leaves/Index">My Leaves</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Responsibilities/Index">Responsibility</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="logout" class="nav-link text-danger fw-bold " asp-page="Authentication/Logout" role="button"><h4>Logout</h4></a>
+                                </li>
+                            }
+                        }
+
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Authentication/LoginPage">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Authentication/RegisterPage">Sign Up</a>
                             </li>
                         }
-                    }
 
-                    else
-                    {
-                        <li class="nav-item">
-                                <a class="nav-link" asp-page="/Authentication/LoginPage">Login</a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link" asp-page="/Authentication/RegisterPage">Sign Up</a>
-                        </li>
-                    }
-
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav> 
+        </nav>
     }
     <header class="masthead">
         <div data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-offset="0" tabindex="0">
@@ -124,9 +132,9 @@
             </div>
         </div>
         @await Component.InvokeAsync("ToastMessageBox")
-    </header>  
+    </header>
     @if (!(ViewData["Title"]?.ToString().Contains("Create") == true ||
-          ViewData["Title"]?.ToString().Contains("Edit") == true))
+    ViewData["Title"]?.ToString().Contains("Edit") == true))
     {
         <footer class="navbar bg-black d-flex flex-wrap justify-content-between align-items-center py-1 fixed-bottom">
             <div class="col-md-4 d-flex align-items-center">

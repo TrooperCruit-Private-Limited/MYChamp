@@ -10,6 +10,8 @@ namespace MYChamp.DbContexts
         public DbSet<VisitUsInformationModel> VisitUsInformation { get; set; }
         //public DbSet<Session_model> Session_Model{ get; set; }
         public DbSet<SessionModel> sessionModel { get; set; }
+        public DbSet<EmployeeList> EmployeeLists { get; set; }
+        public DbSet<SlotBookingDetails> SlotBookingDetails { get; set; }
         public DbSet<RegisterModel> registerModel { get; set; }
         public DbSet<ForcefulLogout> forcefulLogouts { get; set; }
         public DbSet<Article> Article { get; set; }

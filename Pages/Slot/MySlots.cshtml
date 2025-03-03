@@ -1,0 +1,230 @@
+﻿@page
+@model MYChamp.Pages.Slot.MySlotsModel
+@{
+    ViewData["Title"] = "My Slots";
+}
+
+<style>
+    .slot-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9; /* Light gray background */
+    }
+
+        .slot-card h5 {
+            margin-bottom: 10px;
+            color: #333; /* Darker heading color */
+        }
+
+        .slot-card p {
+            margin-bottom: 5px;
+        }
+
+        .slot-card .btn-group {
+            margin-top: 10px;
+        }
+
+        .slot-card .btn {
+            margin-right: 5px;
+        }
+
+    .tab-content {
+        margin-top: 20px;
+    }
+
+    .nav-tabs .nav-link {
+        background-color: #f0f0f0; /* Lighter background for tabs */
+        color: #555;
+        border: 1px solid #ddd;
+        border-radius: 4px 4px 0 0;
+        margin-right: 2px;
+    }
+
+        .nav-tabs .nav-link.active {
+            background-color: #fff; /* White background for active tab */
+            color: #333;
+            border-bottom: 1px solid transparent;
+        }
+
+    .no-slots-message {
+        text-align: center;
+        font-style: italic;
+        color: #777;
+    }
+
+    /* Improved Hover effect for buttons */
+    .btn:hover {
+        opacity: 0.9;
+        transform: scale(1.02); /* Slightly enlarge on hover */
+        transition: transform 0.2s ease-in-out;
+    }
+</style>
+
+<h2 class="text-center">My Slots</h2>
+
+<!-- Tabs for Different Views -->
+<ul class="nav nav-tabs" id="slotTabs">
+    <li class="nav-item">
+        <a class="nav-link active" id="ownSlotsTab" data-toggle="tab" href="#ownSlots">My Slots</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="bookedByOthersTab" data-toggle="tab" href="#bookedByOthers">Booked By Others</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="bookedByMeTab" data-toggle="tab" href="#bookedByMe">My Bookings</a>
+    </li>
+</ul>
+
+<div class="tab-content mt-3">
+    <!-- My Own Slots -->
+    <div class="tab-pane fade show active" id="ownSlots">
+        @if (Model.UserSlots.Any())
+        {
+            <div class="row">
+                @foreach (var slot in Model.UserSlots)
+                {
+                    <div class="col-md-4">
+                        <div class="slot-card">
+                            <h5>@slot.Name</h5>
+                            <p><strong>Phone:</strong> @slot.Phone</p>
+                            <p><strong>Email:</strong> @slot.Email</p>
+                            <p><strong>Date:</strong> @slot.SlotDate.ToShortDateString()</p>
+                            <p><strong>Time:</strong> @slot.SlotStart - @slot.SlotEnd</p>
+
+                            <div class="btn-group" role="group">
+                                @if (!slot.IsBooked)
+                                {
+                                    <a asp-page="/Slot/AddEmployee" asp-route-id="@slot.Id" class="btn btn-sm btn-warning">Edit</a>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteSlot(@slot.Id)">Delete</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-secondary" disabled>Booked</button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelBooking(@slot.Id)">Cancel</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="no-slots-message">You have not created any slots yet.</p>
+        }
+    </div>
+
+    <!-- Someone Booked My Slot -->
+    <div class="tab-pane fade" id="bookedByOthers">
+        @if (Model.BookedByOthers.Any())
+        {
+            <div class="row">
+                @foreach (var slot in Model.BookedByOthers)
+                {
+                    <div class="col-md-4">
+                        <div class="slot-card">
+                            <h5>Booked Slot</h5>
+                            <p><strong>Date:</strong> @slot.SlotDate.ToShortDateString()</p>
+                            <p><strong>Time:</strong> @slot.StartTime - @slot.EndTime</p>
+                            <p><strong>Booked By:</strong> @slot.BookedBy</p>
+
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-danger" onclick="cancelBooking(@slot.Id)">Cancel Booking</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="no-slots-message">No one has booked your slots yet.</p>
+        }
+    </div>
+
+    <!-- My Bookings -->
+    <div class="tab-pane fade" id="bookedByMe">
+        @if (Model.BookedByMe.Any())
+        {
+            <div class="row">
+                @foreach (var slot in Model.BookedByMe)
+                {
+                    <div class="col-md-4">
+                        <div class="slot-card">
+                            <h5>Booked Slot</h5>
+                            <p><strong>Employee:</strong> @slot.Employee.Name</p>
+                            <p><strong>Employee:</strong> @slot.Employee.Phone</p>
+                            <p><strong>Employee:</strong> @slot.Employee.Email</p>
+                            <p><strong>Date:</strong> @slot.Employee.SlotDate.ToShortDateString()</p>
+                            <p><strong>Time:</strong> @slot.StartTime - @slot.EndTime</p>
+
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-danger" onclick="cancelBooking(@slot.Id)">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="no-slots-message">You have not booked any slots yet.</p>
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#slotTabs a').on('click', function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        });
+    });
+
+    function deleteSlot(slotId) {
+        if (confirm("Are you sure you want to delete this slot?")) {
+            fetch(`/Slot/MySlots?handler=DeleteSlot&id=${slotId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Slot deleted successfully.");
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+    }
+
+    function cancelBooking(slotId) {
+        if (confirm("Do you want to cancel this booking?")) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch(`/Slot/MySlots?handler=CancelBooking&id=${slotId}`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token // Include CSRF token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("Booking canceled successfully.");
+                    location.reload();
+                } else {
+                    alert(data.message || "Failed to cancel booking.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }
+</script>
