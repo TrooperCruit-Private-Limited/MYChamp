@@ -90,7 +90,7 @@
             type: "GET",
             data: { year: year, country: country }, 
             dataType: "json",
-                    success: function (holidays) {
+            success: function (holidays) {
         $("#holidayList").html("");
         $("#totalHolidays").text(holidays.length);
 
@@ -101,7 +101,7 @@
             const dbDate = new Date(holiday.date);
             const formattedDate = `${dbDate.getFullYear()}-${String(dbDate.getMonth() + 1).padStart(2, '0')}-${String(dbDate.getDate()).padStart(2, '0')}`;
 
-               $("#holidayList").append(`
+        $("#holidayList").append(`
         <tr>
             <td>${formattedDate}</td>
             <td>${holiday.name}</td>
@@ -124,10 +124,10 @@
 
 
 
-       function generateCalendar(year, holidays) {
+        function generateCalendar(year, holidays) {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const calendarContainer = $("#calendarContainer");
-        calendarContainer.html(""); 
+        calendarContainer.html("");
 
         months.forEach((month, index) => {
             const calendar = $("<div>").addClass("calendar-month").append(`<h3>${month} ${year}</h3>`);
@@ -142,34 +142,27 @@
 
             let row = "<tr>";
             for (let i = 0; i < firstDay; i++) {
-                row += "<td></td>"; 
+                row += "<td></td>";
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, index, day);
-                const dayOfWeek = date.getDay();
-                const holidayDate = `${year}-${String(index + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const date = new Date(Date.UTC(year, index, day)); 
+                const holidayDate = date.toISOString().split("T")[0];
 
-               
                 const holiday = holidays.find(h => {
                     const dbDate = new Date(h.date);
-                    const formattedDate = `${dbDate.getFullYear()}-${String(dbDate.getMonth() + 1).padStart(2, '0')}-${String(dbDate.getDate()).padStart(2, '0')}`;
+                    const formattedDate = dbDate.toISOString().split("T")[0];
                     return formattedDate === holidayDate;
                 });
 
-                
-                const isManualHoliday = $("#manuallyAddedHolidays li").filter(function () {
-                    return $(this).text().includes(holidayDate);
-                }).length > 0;
-
                 let cellClass = "clickable";
-                let cellClick = `onclick="selectDate('${holidayDate}')"`; 
+                let cellClick = `onclick="selectDate('${holidayDate}')"`;
 
-                if (disabledDays.includes(dayOfWeek)) {
+                if (disabledDays.includes(date.getUTCDay())) {
                     cellClass = "disabled";
                     cellClick = "";
-                } else if (holiday || isManualHoliday) {
-                    cellClass = "holiday clickable";
+                } else if (holiday) {
+                    cellClass = "holiday clickable"; // ✅ Add holiday class for yellow highlight
                 }
 
                 row += `<td class="${cellClass}" data-date="${holidayDate}" ${cellClick}>${day}</td>`;
@@ -181,22 +174,11 @@
                 }
             }
 
-           
-            let totalRows = table.find("tr").length - 1;
-            while (totalRows < 6) {
-                let emptyRow = "<tr>";
-                for (let i = 0; i < 7; i++) {
-                    emptyRow += "<td></td>";
-                }
-                emptyRow += "</tr>";
-                table.append(emptyRow);
-                totalRows++;
-            }
-
             calendar.append(table);
             calendarContainer.append(calendar);
         });
     }
+
 
 
         
@@ -294,7 +276,7 @@
 
             let holidaysArray = JSON.parse(holidayData);
 
-            // Retrieve the anti-forgery token
+           
             let antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
 
             $.ajax({
@@ -321,7 +303,7 @@
 
 
 
-                                function deleteHoliday(date) {
+          function deleteHoliday(date) {
         if (!confirm(`Are you sure you want to delete the holiday on ${date}?`)) {
             return;
         }
@@ -337,14 +319,13 @@
             return;
         }
 
-        // Convert date to ISO format (yyyy-MM-dd)
-        const formattedDate = new Date(date).toISOString().split("T")[0];
+       
+        let utcDate = new Date(date + "T00:00:00Z").toISOString().split("T")[0];
 
-        // Get CSRF token for security
         let token = $('input[name="__RequestVerificationToken"]').val();
 
         console.log("🛠 Sending Payload:", JSON.stringify({
-            Date: formattedDate,
+            Date: utcDate,
             Country: country,
             Name: holidayName
         }));
@@ -354,9 +335,9 @@
             type: "POST",
             contentType: "application/json",
             dataType: "json",
-            headers: { "RequestVerificationToken": token },  // CSRF protection
+            headers: { "RequestVerificationToken": token },
             data: JSON.stringify({
-                Date: formattedDate,
+                Date: utcDate,
                 Country: country,
                 Name: holidayName
             }),
@@ -374,6 +355,7 @@
             }
         });
     }
+
 
 
 

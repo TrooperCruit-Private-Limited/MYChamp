@@ -78,8 +78,9 @@ namespace MYChamp.Pages.DHolidayCalender
         private List<CDHoliday> GetHolidaysForYearAndCountry(int year, string country)
         {
             return _context.Holiday
-                .Where(h => h.Date.Year == year && h.Country == country)
-                .ToList();
+           .Where(h => h.Date.Year == year && h.Country == country)
+         
+           .ToList();
         }
 
 
@@ -103,7 +104,10 @@ namespace MYChamp.Pages.DHolidayCalender
 
                 _context.Holiday.AddRange(holidays);
                 int recordsSaved = _context.SaveChanges();
-                return new JsonResult(new { success = true, message = "Holidays added successfully!" });
+
+                
+
+                return new JsonResult(new { success = true, message = "Holidays added successfully!"  });
             }
             catch (DbUpdateException dbEx)
             {
