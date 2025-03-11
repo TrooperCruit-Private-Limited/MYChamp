@@ -124,7 +124,139 @@
 
 
 
-        function generateCalendar(year, holidays) {
+    //     function generateCalendar(year, holidays) {
+    //     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    //     const calendarContainer = $("#calendarContainer");
+    //     calendarContainer.html("");
+
+    //     months.forEach((month, index) => {
+    //         const calendar = $("<div>").addClass("calendar-month").append(`<h3>${month} ${year}</h3>`);
+    //         const table = $("<table>").html(`
+    //             <tr>
+    //                 <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+    //             </tr>
+    //         `);
+
+    //         const firstDay = new Date(year, index, 1).getDay();
+    //         const daysInMonth = new Date(year, index + 1, 0).getDate();
+
+    //         let row = "<tr>";
+    //         for (let i = 0; i < firstDay; i++) {
+    //             row += "<td></td>";
+    //         }
+
+    //         for (let day = 1; day <= daysInMonth; day++) {
+    //             const date = new Date(Date.UTC(year, index, day)); 
+    //             const holidayDate = date.toISOString().split("T")[0];
+
+    //             const holiday = holidays.find(h => {
+    //                 const dbDate = new Date(h.date);
+    //                 const formattedDate = dbDate.toISOString().split("T")[0];
+    //                 return formattedDate === holidayDate;
+    //             });
+
+    //             let cellClass = "clickable";
+    //             let cellClick = `onclick="selectDate('${holidayDate}')"`;
+
+    //             if (disabledDays.includes(date.getUTCDay())) {
+    //                 cellClass = "disabled";
+    //                 cellClick = "";
+    //             } else if (holiday) {
+    //                 cellClass = "holiday clickable"; 
+    //             }
+
+    //             row += `<td class="${cellClass}" data-date="${holidayDate}" ${cellClick}>${day}</td>`;
+
+    //             if ((day + firstDay) % 7 === 0 || day === daysInMonth) {
+    //                 row += "</tr>";
+    //                 table.append(row);
+    //                 row = "<tr>";
+    //             }
+    //         }
+
+    //         calendar.append(table);
+    //         calendarContainer.append(calendar);
+    //     });
+    // }
+
+
+
+        
+     
+
+
+    
+
+    //     function toggleSaturdays() {
+    //     const saturdayWeekend = $("#saturdayWeekend").prop("checked");
+
+    //     $(".calendar-month td").each(function () {
+    //         if ($(this).text().trim() !== "") {
+    //             const date = $(this).data("date");
+    //             const dayOfWeek = new Date(date).getUTCDay();
+
+    //             if (dayOfWeek === 6) { 
+    //                 if (saturdayWeekend) {
+    //                     $(this).addClass("disabled").removeClass("clickable").off("click");
+    //                 } else {
+    //                     $(this).removeClass("disabled").addClass("clickable");
+
+
+
+
+                     
+    //                     if (!$(this).attr("data-click-bound")) {
+    //                         $(this).attr("data-click-bound", "true");
+    //                         $(this).on("click", function () {
+    //                             selectDate($(this).data("date"));
+    //                         });
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
+
+
+
+          function toggleSaturdays() {
+        const saturdayWeekend = $("#saturdayWeekend").prop("checked");
+        const holidaysArray = $("#holidayData").val() ? JSON.parse($("#holidayData").val()) : [];
+
+        $(".calendar-month td").each(function () {
+            if ($(this).text().trim() !== "") {
+                const date = $(this).data("date");
+                const dayOfWeek = new Date(date).getUTCDay();
+
+                if (dayOfWeek === 6) { // If it's a Saturday
+                    const holidayExists = holidaysArray.some(h => h.Date === date);
+
+                    if (saturdayWeekend) {
+                        $(this).addClass("disabled").removeClass("clickable").off("click");
+                        if (holidayExists) {
+                            $(this).addClass("holiday").css("background-color", "#ffeb3b");
+                        }
+                    } else {
+                        $(this).removeClass("disabled").addClass("clickable");
+
+                        if (!$(this).attr("data-click-bound")) {
+                            $(this).attr("data-click-bound", "true");
+                            $(this).on("click", function () {
+                                selectDate($(this).data("date"));
+                            });
+                        }
+
+                        if (holidayExists) {
+                            $(this).addClass("holiday").css("background-color", "#ffeb3b");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
+    function generateCalendar(year, holidays) {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const calendarContainer = $("#calendarContainer");
         calendarContainer.html("");
@@ -146,7 +278,7 @@
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(Date.UTC(year, index, day)); 
+                const date = new Date(Date.UTC(year, index, day));
                 const holidayDate = date.toISOString().split("T")[0];
 
                 const holiday = holidays.find(h => {
@@ -161,8 +293,9 @@
                 if (disabledDays.includes(date.getUTCDay())) {
                     cellClass = "disabled";
                     cellClick = "";
-                } else if (holiday) {
-                    cellClass = "holiday clickable"; // ✅ Add holiday class for yellow highlight
+                }
+                if (holiday) {
+                    cellClass += " holiday";
                 }
 
                 row += `<td class="${cellClass}" data-date="${holidayDate}" ${cellClick}>${day}</td>`;
@@ -179,56 +312,34 @@
         });
     }
 
+  
 
+        function selectDate(date) {
+        console.log("Selected Date:", date);
 
-        
-     
+        let holidaysArray = $("#holidayData").val() ? JSON.parse($("#holidayData").val()) : [];
+        let country = $("#country").val();
 
-
-    function toggleSaturdays() {
-        const saturdayWeekend = $("#saturdayWeekend").prop("checked");
-        $(".calendar-month td").each(function () {
-            if ($(this).text().trim() !== "") {
-                const date = new Date($(this).data("date"));
-                if (date.getDay() === 6) { 
-                    if (saturdayWeekend) {
-                        $(this).addClass("disabled").removeClass("clickable").off("click");
-                    } else {
-                        $(this).removeClass("disabled").addClass("clickable").on("click", function () {
-                            selectDate($(this).data("date"));
-                        });
-                    }
-                }
-            }
-        });
-    }
-
-
-
-
-
-       function selectDate(date) {
-        console.log("Selected Date:", date); 
+       
+        if (holidaysArray.some(h => h.Date === date && h.Country === country)) {
+            alert("This holiday is already added!");
+            return;
+        }
 
         let holidayName = prompt("Enter holiday name for " + date + ":");
         if (!holidayName) return;
 
-        let country = $("#country").val();
-
-        $("#selectedDate").val(date); 
+        $("#selectedDate").val(date);
 
        
-        let holidaysArray = $("#holidayData").val() ? JSON.parse($("#holidayData").val()) : [];
         holidaysArray.push({ Date: date, Name: holidayName, Country: country });
-        $("#holidayData").val(JSON.stringify(holidaysArray)); 
+        $("#holidayData").val(JSON.stringify(holidaysArray));
 
         console.log("Updated Holiday Data:", holidaysArray);
 
-        
         $("#manuallyAddedHolidays").append(`<li data-date="${date}">${date} - ${holidayName}</li>`);
         updateCalendarHighlight(date);
     }
-
 
 
         $("#selectedDate").on("change", function () {
@@ -265,7 +376,7 @@
 
 
           $(document).ready(function () {
-        $("#submitHolidays").on("click", function (event) {
+        $("#submitHolidays").off("click").on("click", function (event) {
             event.preventDefault();
 
             let holidayData = $("#holidayData").val().trim();
@@ -359,26 +470,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
          function updateCalendarHighlight(selectedDate) {
         $(".calendar-month td").each(function () {
             if ($(this).data("date") === selectedDate) {
@@ -398,7 +489,28 @@
     }
 
 
+        function saveHoliday(date) {
+        let holidaysArray = JSON.parse(localStorage.getItem("holidays")) || [];
+        if (!holidaysArray.includes(date)) {
+            holidaysArray.push(date);
+            localStorage.setItem("holidays", JSON.stringify(holidaysArray));
+        }
+    }
 
+        function restoreHolidays() {
+        let holidaysArray = JSON.parse(localStorage.getItem("holidays")) || [];
+
+        $(".calendar-month td").each(function () {
+            const date = $(this).data("date");
+            if (holidaysArray.includes(date)) {
+                $(this).addClass("holiday");
+            }
+        });
+    }
+
+        $(document).ready(function () {
+        restoreHolidays();
+    });
 
 </script>
 

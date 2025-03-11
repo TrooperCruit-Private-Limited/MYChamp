@@ -41,21 +41,21 @@ namespace MYChamp.Pages.DHolidayCalender
 
         private void InsertDefaultHolidays(List<int> years)
         {
-            var existingHolidayCount = _context.Holiday.Count(); 
-            if (existingHolidayCount > 0) return; 
+            if (_context.Holiday.Any()) return; // ✅ Skip if holidays already exist
 
             var holidays = new List<CDHoliday>();
 
             foreach (var year in years)
             {
-                holidays.Add(new CDHoliday { Date = new DateTime(year, 1, 1), Name = "New Year's Day", Country = "India" });
-                holidays.Add(new CDHoliday { Date = new DateTime(year, 1, 26), Name = "Republic Day", Country = "India" });
-                holidays.Add(new CDHoliday { Date = new DateTime(year, 8, 15), Name = "Independence Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = DateTime.SpecifyKind(new DateTime(year, 1, 1), DateTimeKind.Utc), Name = "New Year's Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = DateTime.SpecifyKind(new DateTime(year, 1, 26), DateTimeKind.Utc), Name = "Republic Day", Country = "India" });
+                holidays.Add(new CDHoliday { Date = DateTime.SpecifyKind(new DateTime(year, 8, 15), DateTimeKind.Utc), Name = "Independence Day", Country = "India" });
             }
 
             _context.Holiday.AddRange(holidays);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
         }
+
 
 
         public JsonResult OnGetFetchHolidays(int year, string country)
@@ -127,7 +127,6 @@ namespace MYChamp.Pages.DHolidayCalender
         {
             try
             {
-               
                 string dateString = jsonData.GetProperty("Date").GetString();
                 string country = jsonData.GetProperty("Country").GetString();
                 string name = jsonData.GetProperty("Name").GetString();
@@ -138,19 +137,19 @@ namespace MYChamp.Pages.DHolidayCalender
                     return BadRequest(new { success = false, message = "Invalid holiday data. Date, Country, and Name are required!" });
                 }
 
-                DateTime holidayDate;
-                if (!DateTime.TryParse(dateString, out holidayDate))
+                if (!DateTime.TryParse(dateString, out DateTime holidayDate))
                 {
                     Console.WriteLine("❌ Error: Invalid Date format received.");
                     return BadRequest(new { success = false, message = "Invalid date format!" });
                 }
 
-                holidayDate = DateTime.SpecifyKind(holidayDate.Date, DateTimeKind.Utc);
+                // ✅ Convert to UTC before comparison
+                holidayDate = DateTime.SpecifyKind(holidayDate, DateTimeKind.Utc);
 
                 Console.WriteLine($"🔍 Debug: Deleting Holiday - Date: {holidayDate}, Country: {country}, Name: {name}");
 
                 var holidayToDelete = await _context.Holiday
-                    .FirstOrDefaultAsync(h => h.Date.Date == holidayDate.Date && h.Country == country && h.Name == name);
+                    .FirstOrDefaultAsync(h => h.Date == holidayDate && h.Country == country && h.Name == name);
 
                 if (holidayToDelete != null)
                 {
