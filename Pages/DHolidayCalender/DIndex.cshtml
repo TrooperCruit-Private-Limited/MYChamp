@@ -27,14 +27,7 @@
                 <input type="checkbox" id="saturdayWeekend" onchange="toggleSaturdays()" checked> Saturday is Weekend
             </label>
 
-            <label for="selectedDate">Selected Date:</label>
-            <input type="text" id="selectedDate" name="selectedDate" readonly />
-
             
-            <input type="hidden" id="holidayData" name="holidayData" value="[]" />
-
-            <button type="submit" id="submitHolidays">Submit</button>
-
 
            
         </form>
@@ -62,6 +55,22 @@
                 <tbody id="holidayList">
                     
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                               
+                                <input type="text" id="selectedDate" name="selectedDate" readonly style="width:110px;" />
+
+                                <input type="text" id="holidayName" name="holidayName" style="width:110px;" />
+
+                                <input type="hidden" id="holidayData" name="holidayData" value="[]" />
+
+                                <button type="submit" id="submitHolidays">Submit</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
 
            
@@ -238,7 +247,7 @@
         if (!holidayName) return;
 
         $("#selectedDate").val(date);
-
+          $("#holidayName").val(holidayName);
        
         holidaysArray.push({ Date: date, Name: holidayName, Country: country });
         $("#holidayData").val(JSON.stringify(holidaysArray));
@@ -430,7 +439,7 @@
         
         .layout {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             margin-top: 20px;
             justify-content: space-between; 
             align-items: flex-start; 
