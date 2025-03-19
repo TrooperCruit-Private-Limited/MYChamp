@@ -114,7 +114,12 @@
         <tr>
             <td>${formattedDate}</td>
             <td>${holiday.name}</td>
-                 <td><button onclick="deleteHoliday('${formattedDate}')">Delete</button></td>
+                     <td>
+        <button onclick="deleteHoliday('${formattedDate}')" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+
         </tr>
     `);
 
