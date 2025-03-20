@@ -150,7 +150,7 @@
                 const date = $(this).data("date");
                 const dayOfWeek = new Date(date).getUTCDay();
 
-                if (dayOfWeek === 6) { // If it's a Saturday
+                if (dayOfWeek === 6) { 
                     const holidayExists = holidaysArray.some(h => h.Date === date);
 
                     if (saturdayWeekend) {
