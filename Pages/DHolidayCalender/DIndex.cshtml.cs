@@ -41,7 +41,7 @@ namespace MYChamp.Pages.DHolidayCalender
 
         private void InsertDefaultHolidays(List<int> years)
         {
-            if (_context.Holiday.Any()) return; // ✅ Skip if holidays already exist
+            if (_context.Holiday.Any()) return; 
 
             var holidays = new List<CDHoliday>();
 
